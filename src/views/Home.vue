@@ -1,7 +1,13 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <div class="home bg-gray-800 text-gray-200">
+      <nav class="p-4 shadow-md">
+          <h1 class="font-bold text-2xl">pwnbro</h1>
+      </nav>
+    <main class=" flex md:flex-col flex-row">
+        <section>
+            <h2>Code</h2>
+        </section>
+    </main>
   </div>
 </template>
 
