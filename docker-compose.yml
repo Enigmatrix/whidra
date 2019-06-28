@@ -11,9 +11,9 @@ services:
       - "13100:13100"
       - "13101:13101"
       - "13102:13102"
-  web:
-    build: .
-    container_name: pwnbro_web
+  app:
+    build: ./app
+    container_name: pwnbro_app
     networks:
       - main
     volumes:
