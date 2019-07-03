@@ -1,10 +1,11 @@
 version: '3'
+
 services:
   ghidra:
     build: ./ghidra
     container_name: pwnbro_ghidra
-    networks:
-      - main
+    network_mode: host
+    hostname: daniellimws.hopto.org
     volumes:
       - "main:/data"
     ports:
