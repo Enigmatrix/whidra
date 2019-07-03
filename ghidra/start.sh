@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cp server/hosts /etc/hosts
-
 server/ghidraSvr start
 server/ghidraSvr stop
 server/svrAdmin -add enigmatrix
