@@ -5,7 +5,7 @@ services:
     build: ./ghidra
     container_name: pwnbro_ghidra
     network_mode: host
-    hostname: daniellimws.hopto.org
+    hostname: whidra.hats.sg
     volumes:
       - "main:/data"
     ports:
