@@ -10,7 +10,7 @@ RUN useradd -m ghidra && \
     update-alternatives --install "/usr/bin/javac" "javac" "/usr/local/openjdk-11/bin/javac" 0
 
 WORKDIR /opt
-RUN apt-get update && apt-get install -y unzip wget gettext-base patch sudo && \
+RUN apt-get update && apt-get install -y unzip wget gettext-base patch sudo ed && \
     wget -q -O ghidra.zip https://ghidra-sre.org/ghidra_${GHIDRA_VERSION}.zip && \
     echo "${GHIDRA_SHA256} *ghidra.zip" | sha256sum -c && \
     unzip ghidra.zip && \
@@ -24,11 +24,13 @@ RUN apt-get update && apt-get install -y unzip wget gettext-base patch sudo && \
 VOLUME /srv/repositories
 WORKDIR /opt/ghidra
 ENV ghidra_home=/opt/ghidra
-COPY --chown=ghidra:ghidra server.conf /opt/ghidra/server
-COPY --chown=ghidra:ghidra start.sh /opt/ghidra/server
+COPY ./scripts /opt/ghidra/custom_scripts
+COPY server.conf /opt/ghidra/server
+COPY start.sh /opt/ghidra/server
 RUN server/svrInstall
 
 RUN echo "0.0.0.0  ${HOST}" >> /etc/hosts && \
+    echo "wrapper.java.additional.4=-Djava.rmi.server.hostname=${HOST}" >> server/server.conf && \
     cp /etc/hosts /opt/ghidra/server
 
 CMD server/start.sh
