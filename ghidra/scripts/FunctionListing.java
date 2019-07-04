@@ -33,7 +33,7 @@ public class FunctionListing extends HeadlessScript {
 			*/
 			Address entry = f.getEntryPoint();
 			if (entry != null) {
-				System.out.printf("%s\t0x%x\n", f.getName(), entry.getOffset());
+				println(String.format("%s\t0x%x", f.getName(), entry.getOffset()));
 			}
 		}
 		setHeadlessContinuationOption(HeadlessContinuationOption.ABORT_AND_DELETE);
