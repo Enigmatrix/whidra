@@ -3,7 +3,7 @@ version: '3'
 services:
   ghidra:
     build: ./ghidra
-    container_name: pwnbro_ghidra
+    container_name: ghidra_svr
     network_mode: host
     hostname: whidra.hats.sg
     volumes:
@@ -14,7 +14,7 @@ services:
       - "13102:13102"
   app:
     build: ./app
-    container_name: pwnbro_app
+    container_name: whidra_app
     networks:
       - main
     volumes:
