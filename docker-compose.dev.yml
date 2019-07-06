@@ -6,6 +6,8 @@ services:
       args:
         HOST: 'localhost'
     hostname: localhost
+    volumes:
+      - './ghidra/scripts:/opt/ghidra/custom_scripts'
   app:
     build:
       dockerfile: Dockerfile-dev
