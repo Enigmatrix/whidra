@@ -15,10 +15,10 @@ public class GetProjectBinaries extends HeadlessScript {
     public void run() throws Exception {
         // TODO make this work for subfolder also
         var folder = state.getProject().getProjectData().getRootFolder();
-        println("PROJECTS BEGIN");
+        println("LIST BEGIN");
         for (var file : folder.getFiles()) {
             println(file.getName());
         }
-        println("PROJECTS END");
+        println("LIST END");
     }
 }

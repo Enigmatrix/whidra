@@ -6,9 +6,17 @@ export const projects = Router();
 
 const docker = new Dockerode();
 
-const ghidraCmd = async (cmd: string[]) => {
-    const exec = await docker.getContainer('ghidra_svr').exec(cmd, { stderr: true, stdout: true });
+const ghidraCmd = async (cmd: string[], sendPass:boolean=false) => {
+    const exec = await docker.getContainer('ghidra_svr').exec(cmd,
+        { stderr: true, stdout: true, stdin: sendPass ? 'changeme' : undefined });
     return exec.stdout;
+};
+
+const parseList = (str: string): string[] => {
+     return str.split("LIST BEGIN")[1]
+        .split("LIST END")[0].split('\n')
+        .slice(1,-1)
+        .map(x => x.split("> ")[1].split(" (GhidraScript)")[0]);
 };
 
 projects.get('/all', async (req: Request, res: Response) => {
@@ -17,7 +25,7 @@ projects.get('/all', async (req: Request, res: Response) => {
     if(repos[0] === '   <No repositories have been created>'){
         repos = [];
     }
-    res.json(repos);
+    res.json(repos.slice(0, -2).map(x => x.trim()));
 })
 
 projects.post('/new', async (req: Request, res: Response) => {
@@ -32,4 +40,8 @@ projects.post('/new', async (req: Request, res: Response) => {
 })
 
 projects.get('/:project/binaries', async (req: Request, res: Response) => {
+    const {project} = req.params;
+    const cmd = ['./support/analyzeHeadless', 'ghidra://localhost/'+project, '-postScript', '/opt/ghidra/custom_scripts/GetProjectBinaries.java', '-noanalysis', '-p'];
+    const output = parseList(await ghidraCmd(cmd, true));
+    res.json(output);
 })
