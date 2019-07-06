@@ -25,9 +25,6 @@ export default class Binary extends Vue {
   @Prop() binary!: string;
   @Prop() project!: string;
   activeTab = 'code';
-  changeTab({srcElement}) {
-	console.dir(arguments);
-  }
 }
 </script>
 
