@@ -20,6 +20,8 @@ public class CreateProject extends HeadlessScript {
         }
 
         setServerCredentials("root", System.getenv("GHIDRA_PASS"));
-        GhidraProject.getServerRepository(System.getenv("GHIDRA_SERVER_HOST"), 13100, args[0], true);
+        println(System.getenv(("HOST")));
+        println(args[0]);
+        GhidraProject.getServerRepository(System.getenv("HOST"), 13100, args[0], true);
     }
 }

@@ -7,6 +7,8 @@ services:
     container_name: ghidra_svr
     network_mode: host
     hostname: whidra.hats.sg
+    environment:
+      - GHIDRA_PASS=changeme
     volumes:
       - "main:/data"
     ports:
