@@ -21,6 +21,7 @@ services:
       - main
     volumes:
       - "main:/data"
+      - "/var/run/docker.sock:/var/run/docker.sock"
     ports:
       - "8080:3000"
     depends_on:
