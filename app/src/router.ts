@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './views/Home.vue';
+import Projects from './views/Projects.vue';
+import Binary from './views/Binary.vue';
 
 Vue.use(Router);
 
@@ -12,6 +14,17 @@ export default new Router({
       path: '/',
       name: 'home',
       component: Home,
+    },
+    {
+      path: '/projects',
+      name: 'projects',
+      component: Projects,
+    },
+    {
+      path: '/binary/:project/:binary',
+      name: 'binary',
+      component: Binary,
+      props: true
     },
     {
       path: '/about',
