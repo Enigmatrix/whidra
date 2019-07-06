@@ -2,7 +2,8 @@ version: '3'
 
 services:
   ghidra:
-    build: ./ghidra
+    build:
+      context: ./ghidra
     container_name: ghidra_svr
     network_mode: host
     hostname: whidra.hats.sg
@@ -13,7 +14,8 @@ services:
       - "13101:13101"
       - "13102:13102"
   app:
-    build: ./app
+    build:
+      context: ./app
     container_name: whidra_app
     networks:
       - main

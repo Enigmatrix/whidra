@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  ghidra:
+    build:
+      args:
+        HOST: 'localhost'
+    hostname: localhost
+  app:
+    build:
+      dockerfile: Dockerfile-dev
+    volumes:
+      - './app:/app'
+      - /app/node_modules
+      - /app/dist
+    environment:
+      - NODE_ENV=dev

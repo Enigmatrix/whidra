@@ -3,6 +3,7 @@ import {Router, Response, Request} from 'express';
 export const projects = Router();
 
 projects.get('/all', async (req: Request, res: Response) => {
+    res.json(['titties']);
 })
 
 projects.post('/new', async (req: Request, res: Response) => {
