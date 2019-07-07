@@ -12,9 +12,12 @@ services:
     build:
       dockerfile: Dockerfile-dev
     volumes:
-      - './app/:/app'
+      - './app:/app'
       - /app/node_modules
       - /app/dist
     environment:
       - NODE_ENV=dev
-    command: bash -c "yarn install --force --frozen-lockfile && yarn express && yarn serve"
+    command: bash -c "yarn install --force --frozen-lockfile && (yarn express | (sleep 10 && yarn serve))"
+    ports:
+      - "3000:3000"
+      - "8080:8080"

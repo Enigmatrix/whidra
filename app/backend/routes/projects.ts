@@ -32,8 +32,8 @@ projects.post('/new', async (req: Request, res: Response) => {
     let {name} = req.body;
     name = filenamify(name, {replacement: '_'});
 
-    const cmd = ['./support/analyzeHeadless', '.', 'empty', '-postScript',
-        '/opt/ghidra/custom_scripts/CreateProject.java', name, '-deleteProject', '-noanalysis'];
+    const cmd = ['./support/analyzeHeadless', '.', 'empty',
+        '-postScript', '/opt/ghidra/custom_scripts/CreateProject.java', name, '-deleteProject', '-noanalysis'];
 
     const output = await ghidraCmd(cmd);
     res.json(output);
@@ -41,7 +41,8 @@ projects.post('/new', async (req: Request, res: Response) => {
 
 projects.get('/:project/binaries', async (req: Request, res: Response) => {
     const {project} = req.params;
-    const cmd = ['./support/analyzeHeadless', 'ghidra://localhost/'+project, '-postScript', '/opt/ghidra/custom_scripts/GetProjectBinaries.java', '-noanalysis', '-p'];
+    const cmd = ['./support/analyzeHeadless', 'ghidra://localhost/'+project,
+        '-postScript', '/opt/ghidra/custom_scripts/GetProjectBinaries.java', '-noanalysis', '-p'];
     const output = parseList(await ghidraCmd(cmd, true));
     res.json(output);
 })

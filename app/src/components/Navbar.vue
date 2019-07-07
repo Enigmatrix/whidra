@@ -13,7 +13,7 @@ import {Prop, Vue, Component} from 'vue-property-decorator';
 
 @Component({})
 export default class Navbar extends Vue {
-    @Prop({}) title!: boolean; 
+    @Prop({default: true}) title!: boolean; 
     @Prop({default: false}) custom!: boolean; 
 };
 </script>

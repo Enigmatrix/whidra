@@ -13,6 +13,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import Project from '../components/Project.vue';
 import Navbar from '../components/Navbar.vue';
+import axios from '../axios';
 
 @Component({
   components: {
@@ -21,7 +22,10 @@ import Navbar from '../components/Navbar.vue';
   },
 })
 export default class Projects extends Vue {
-    projects = ['google-ctf-2018', 'hitb-gsec']
+    projects = []
+    async mounted(){
+        this.projects = await axios.get<string[]>("/projects/all").then(x => x.data);
+    }
 }
 </script>
 
