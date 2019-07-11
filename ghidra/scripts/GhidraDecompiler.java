@@ -13,17 +13,24 @@
 import ghidra.app.decompiler.ClangLine;
 import ghidra.app.decompiler.DecompInterface;
 import ghidra.app.decompiler.DecompileResults;
+import ghidra.app.decompiler.DecompileProcess;
 import ghidra.app.decompiler.DecompiledFunction;
+import ghidra.app.decompiler.LimitedByteBuffer;
 import ghidra.app.decompiler.PrettyPrinter;
 import ghidra.app.decompiler.component.DecompilerUtils;
 
 import ghidra.app.util.headless.HeadlessScript;
+import ghidra.util.task.TaskMonitor;
 
+
+import ghidra.program.model.lang.*;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.FunctionIterator;
 import ghidra.program.model.listing.Listing;
-import ghidra.program.model.pcode.HighFunction;
+import ghidra.program.model.pcode.*;
+
+import java.io.*;
 
 import java.util.ArrayList;
 
@@ -55,7 +62,7 @@ public class GhidraDecompiler extends HeadlessScript {
     }
     println(String.format("Address: %x", functionAddress)); // DEBUG
 
-    DecompInterface di = new DecompInterface();
+    DecompInterfaceWithStream di = new DecompInterfaceWithStream();
     println("Simplification style: " + di.getSimplificationStyle()); // DEBUG
     println("Debug enables: " + di.debugEnabled());
 
@@ -70,33 +77,7 @@ public class GhidraDecompiler extends HeadlessScript {
     println("Program: " + di.openProgram(f.getProgram())); // DEBUG
 
     // Decompile with a 5-seconds timeout
-    DecompileResults dr = di.decompileFunction(f, 5, null);
-    println("Decompilation completed: " + dr.decompileCompleted()); // DEBUG
-
-    DecompiledFunction df = dr.getDecompiledFunction();
-    println(df.getC());
-
-    // Print lines prepend with addresses
-    PrettyPrinter pp = new PrettyPrinter(f, dr.getCCodeMarkup());
-    ArrayList<ClangLine> lines = pp.getLines();
-
-    for (ClangLine line : lines) {
-      long minAddress = Long.MAX_VALUE; 
-      long maxAddress = 0; 
-      for (int i = 0; i < line.getNumTokens(); i++) {
-        if (line.getToken(i).getMinAddress() == null) {
-          continue; 
-        }
-        long addr = line.getToken(i).getMinAddress().getOffset();
-        minAddress = addr < minAddress ? addr : minAddress;
-        maxAddress = addr > maxAddress ? addr : maxAddress;
-      }
-      if (maxAddress == 0) {
-        println(String.format("                      - %s", line.toString()));
-      } else {
-        println(String.format("0x%-8x 0x%-8x - %s", minAddress, maxAddress, line.toString()));
-      }
-    }
+    di.decompileFunctionXML(f, 5, null);
   }
 
   protected Function getFunction(int address) {
@@ -118,4 +99,82 @@ public class GhidraDecompiler extends HeadlessScript {
     return null;
   }
 
+
+  private class DecompInterfaceWithStream extends DecompInterface {
+    /**
+     * Decompile function
+     * @param func function to be decompiled
+     * @param timeoutSecs if decompile does not complete in this time a null value
+     * will be returned and a timeout error set.
+     * @param monitor optional task monitor which may be used to cancel decompile
+     * @return decompiled function text
+     * @throws CancelledException operation was cancelled via monitor
+     */
+    public synchronized void decompileFunctionXML(Function func, int timeoutSecs,
+      TaskMonitor monitor) {
+
+      decompileMessage = "";
+      if (monitor != null && monitor.isCancelled()) {
+        return;
+      }
+
+      LimitedByteBuffer res = null;
+      if (monitor != null) {
+        monitor.addCancelledListener(monitorListener);
+      }
+
+      if (program == null) {
+        return;
+      }
+
+      try {
+        Address funcEntry = func.getEntryPoint();
+        decompCallback.setFunction(func, funcEntry, null);
+        String addrstring = Varnode.buildXMLAddress(funcEntry);
+        verifyProcess();
+        res =
+          decompProcess.sendCommand1ParamTimeout("decompileAt", addrstring.toString(),
+            timeoutSecs);
+        decompileMessage = decompCallback.getNativeMessage();
+      }
+      catch (Exception ex) {
+        decompileMessage = "Exception while decompiling " +func.getEntryPoint() + ": "+ ex.getMessage() + '\n';
+      }
+      finally {
+        if (monitor != null) {
+          monitor.removeCancelledListener(monitorListener);
+        }
+      }
+
+      DecompileProcess.DisposeState processState;
+      if (decompProcess != null) {
+        processState = decompProcess.getDisposeState();
+        if (decompProcess.getDisposeState() == DecompileProcess.DisposeState.NOT_DISPOSED) {
+          flushCache();
+        }
+      }
+      else {
+        processState = DecompileProcess.DisposeState.DISPOSED_ON_CANCEL;
+      }
+
+      InputStream stream = null;
+      if (res != null)
+        stream = res.getInputStream();
+      dumpResults(stream);
+    }
+
+    private void dumpResults(InputStream stream) {
+      if (stream == null) {
+        return;
+      }
+      try {
+        System.out.write(stream.readAllBytes());
+        System.out.flush();
+        System.out.close();
+      }
+      catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
 }
