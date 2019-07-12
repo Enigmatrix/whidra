@@ -31,3 +31,10 @@ projects.get('/:project/binaries', async (req: Request, res: Response) => {
     const output = parseList(await ghidraCmd(cmd, true));
     res.json(output);
 })
+
+projects.get('/wtf', async (req: Request, res: Response) => {
+    const cmd = ['./support/analyzeHeadless', '.', 'empty',
+        '-postScript', '/opt/ghidra/custom_scripts/Test.java', '-noanalysis', '-okToDelete'];
+    const output = await ghidraCmd(cmd, true);
+    res.send(output);
+});

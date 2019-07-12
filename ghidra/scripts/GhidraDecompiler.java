@@ -26,8 +26,57 @@ import ghidra.program.model.listing.Listing;
 import ghidra.program.model.pcode.HighFunction;
 
 import java.util.ArrayList;
+import com.google.gson.*;
+import java.lang.reflect.*;
+import java.io.*;
 
 public class GhidraDecompiler extends HeadlessScript {
+
+public class SuperclassExclusionStrategy implements ExclusionStrategy
+{
+    public boolean shouldSkipClass(Class<?> arg0)
+    {
+        return false;
+    }
+
+    public boolean shouldSkipField(FieldAttributes fieldAttributes)
+    {
+        String fieldName = fieldAttributes.getName();
+        Class<?> theClass = fieldAttributes.getDeclaringClass();
+
+        return isFieldInSuperclass(theClass, fieldName);            
+    }
+
+    private boolean isFieldInSuperclass(Class<?> subclass, String fieldName)
+    {
+        Class<?> superclass = subclass.getSuperclass();
+        Field field;
+
+        while(superclass != null)
+        {   
+            field = getField(superclass, fieldName);
+
+            if(field != null)
+                return true;
+
+            superclass = superclass.getSuperclass();
+        }
+
+        return false;
+    }
+
+    private Field getField(Class<?> theClass, String fieldName)
+    {
+        try
+        {
+            return theClass.getDeclaredField(fieldName);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+}
 
   @Override
   public void run() throws Exception {
@@ -74,7 +123,15 @@ public class GhidraDecompiler extends HeadlessScript {
     println("Decompilation completed: " + dr.decompileCompleted()); // DEBUG
 
     DecompiledFunction df = dr.getDecompiledFunction();
-    println(df.getC());
+    println("DECOMP RESULT START");
+	var fn = dr.getHighFunction();
+	var range = fn.getBasicBlocks();
+	var stringbuilder = new StringWriter();
+	for(var r : range){
+		r.saveXmlBody(stringbuilder);
+	}
+	println(stringbuilder.toString());
+    println("DECOMP RESULT END");
 
     // Print lines prepend with addresses
     PrettyPrinter pp = new PrettyPrinter(f, dr.getCCodeMarkup());

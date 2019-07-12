@@ -18,7 +18,7 @@
                         <path fill="currentColor" d="M13,9V3.5L18.5,9M6,2C4.89,2 4,2.89 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6Z" />
                     </svg>
                 </span>
-                <span class="mx-2">{{binary}}</span>
+                <router-link :to="`/binary/${name}/${binary}`" class="mx-2">{{binary}}</router-link>
             </div>
         </div>
     </div>
@@ -26,6 +26,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import axios from '../axios';
 
 @Component
 export default class Project extends Vue {
@@ -34,11 +35,10 @@ export default class Project extends Vue {
     expanded = false
     binaries: any[]|null = null
 
-    chevronClick(){
+    async chevronClick(){
         if(!this.expanded && this.binaries === null){
-            //TODO get binaries from api
             //TODO get a upload button?
-            this.binaries = ['archimedes']
+            this.binaries = await axios.get<string[]>(`/projects/${this.name}/binaries`).then((x) => x.data);
         }
         this.expanded = !this.expanded;
     }

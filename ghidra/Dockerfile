@@ -34,6 +34,9 @@ RUN echo "0.0.0.0  ${HOST}" >> /etc/hosts && \
     echo "wrapper.java.additional.4=-Djava.rmi.server.hostname=${HOST}" >> server/server.conf && \
     cp /etc/hosts /opt/ghidra/server
 
+RUN mkdir -p /root/.ghidra/.ghidra-9.0/plugins
+RUN wget https://search.maven.org/remotecontent?filepath=com/google/code/gson/gson/2.8.5/gson-2.8.5.jar -O /root/.ghidra/.ghidra-9.0/plugins/gson.jar
+
 CMD server/start.sh
 
 EXPOSE 13100
