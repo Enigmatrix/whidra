@@ -48,13 +48,13 @@ export default class Binary extends Vue {
   @Prop() project!: string;
   side=false;
   activeTab = 'code';
-  functions=[];
+  functions:[string, string][]=[];
   code='';
   async mounted(){
-      this.functions = await axios.get<string[]>(`/binary/${this.project}/${this.binary}/functions`).then(x=>x.data);
+      this.functions = await axios.get<[string, string][]>(`/binary/${this.project}/${this.binary}/functions`).then(x=>x.data);
       this.select(this.functions[0]);
   }
-  async select([fnName, fnAddr]){
+  async select([fnName, fnAddr]: [string, string]){
       this.code = await axios.get<string>(`/binary/${this.project}/${this.binary}/code`, {params:{addr: fnAddr.split('0x')[1] }}).then(x=>x.data);
   }
 }

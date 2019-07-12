@@ -34,7 +34,7 @@ import axios from '../axios';
   },
 })
 export default class Projects extends Vue {
-    projects = [];
+    projects: string[] = [];
     modal = false;
     newProjectName = '';
     async mounted(){
@@ -42,6 +42,7 @@ export default class Projects extends Vue {
     }
     async getProjects(){
         this.projects = await axios.get<string[]>("/projects/all").then(x => x.data);
+        
     }
     async newProject(){
         this.modal = true;

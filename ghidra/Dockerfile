@@ -37,8 +37,8 @@ RUN echo "0.0.0.0  ${HOST}" >> /etc/hosts && \
 RUN mkdir -p /root/.ghidra/.ghidra-9.0/plugins
 RUN wget https://search.maven.org/remotecontent?filepath=com/google/code/gson/gson/2.8.5/gson-2.8.5.jar -O /root/.ghidra/.ghidra-9.0/plugins/gson.jar
 
-CMD server/start.sh
-
 EXPOSE 13100
 EXPOSE 13101
 EXPOSE 13102
+
+CMD server/start.sh
