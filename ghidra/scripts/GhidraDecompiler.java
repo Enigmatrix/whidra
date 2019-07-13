@@ -77,7 +77,9 @@ public class GhidraDecompiler extends HeadlessScript {
     println("Program: " + di.openProgram(f.getProgram())); // DEBUG
 
     // Decompile with a 5-seconds timeout
+    println("DECOMP RESULT START");
     di.decompileFunctionXML(f, 5, null);
+    println("DECOMP RESULT END");
   }
 
   protected Function getFunction(int address) {
