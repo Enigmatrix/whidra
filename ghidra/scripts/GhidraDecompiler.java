@@ -33,9 +33,11 @@ import ghidra.program.model.pcode.*;
 import java.io.*;
 
 import java.util.ArrayList;
+import com.google.gson.*;
+import java.lang.reflect.*;
+import java.io.*;
 
 public class GhidraDecompiler extends HeadlessScript {
-
   @Override
   public void run() throws Exception {
 

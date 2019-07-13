@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import Home from './views/Home.vue';
 import Projects from './views/Projects.vue';
 import Binary from './views/Binary.vue';
+import Upload from './views/Upload.vue';
 
 Vue.use(Router);
 
@@ -24,6 +25,12 @@ export default new Router({
       path: '/binary/:project/:binary',
       name: 'binary',
       component: Binary,
+      props: true
+    },
+    {
+      path: '/upload/:project',
+      name: 'upload',
+      component: Upload,
       props: true
     },
     {
