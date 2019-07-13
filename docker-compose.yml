@@ -10,7 +10,7 @@ services:
     environment:
       - GHIDRA_PASS=changeme
     volumes:
-      - "main:/data"
+      - "uploads:/uploads"
     ports:
       - "13100:13100"
       - "13101:13101"
@@ -22,13 +22,13 @@ services:
     networks:
       - main
     volumes:
-      - "main:/data"
+      - "uploads:/uploads"
       - "/var/run/docker.sock:/var/run/docker.sock"
     depends_on:
       - ghidra
 
 volumes:
-  main:
+  uploads:
 
 networks:
   main:

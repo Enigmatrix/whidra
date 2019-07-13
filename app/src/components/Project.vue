@@ -1,6 +1,7 @@
 <template>
     <div class="flex flex-col text-gray-200 my-4">
-        <div class="flex" @click="chevronClick">
+        <div class="flex">
+            <div class="flex" @click="chevronClick">
             <span class="mx-2">
                 <svg class="h-8 w-8" viewBox="0 0 24 24" v-if="expanded">
                     <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
@@ -10,6 +11,15 @@
                 </svg>
             </span>
             <span class="text-xl">{{name}}</span>
+            </div>
+            <div class="flex-1"/>
+                <router-link :to="`/upload/${name}`">
+            <button class="shadow mx-2 p-1 bg-blue-600 rounded text-sm">
+                <svg class="h-6 w-6" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z" />
+                </svg>
+            </button>
+                </router-link>
         </div>
         <div v-if="expanded">
             <div v-for="binary in binaries" :key="binary" class="ml-12 my-2 flex align-center">
