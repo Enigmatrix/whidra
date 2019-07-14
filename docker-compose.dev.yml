@@ -17,7 +17,7 @@ services:
       - /app/dist
     environment:
       - NODE_ENV=dev
-    command: bash -c "yarn install --force --frozen-lockfile && (yarn express | (sleep 10 && yarn serve))"
+    command: bash -c "yarn install --force --frozen-lockfile && (yarn express | (sleep 10 && yarn serve --port 8081))"
     ports:
       - "3000:3000"
-      - "8080:8080"
+      - "8081:8081"

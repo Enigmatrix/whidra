@@ -60,9 +60,9 @@ export default class Binary extends Vue {
   }
   async select([fnName, fnAddr]: [string, string]){
       const xml = await axios.get<string>(`/binary/${this.project}/${this.binary}/code`, {params:{addr: fnAddr.split('0x')[1] }}).then(x=>x.data);
-
       var xp = new DOMParser();
       const elems = xp.parseFromString(xml, 'text/xml');
+      console.dir(await promisify(parseString)(xml, {}));
       this.syntax = elems.firstChild.lastChild.childNodes;
   }
 }

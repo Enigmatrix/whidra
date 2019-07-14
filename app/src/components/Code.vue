@@ -14,10 +14,6 @@ import SyntaxElem from '../components/SyntaxElem.vue';
 })
 export default class Code extends Vue {
     @Prop({required: true}) syntaxes: Object;
-    @Watch('syntaxes')
-    onSyntaxChanged(){
-        console.dir(this.syntaxes);
-    }
 }
 </script>
 
