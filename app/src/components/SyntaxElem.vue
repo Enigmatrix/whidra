@@ -2,7 +2,7 @@
     <span v-if="syntax.childNodes && syntax.childNodes.length !== 0" :class="classObj">
         <SyntaxElem v-for="syn in syntax.childNodes" :syntax="syn"/>
     </span>
-    <pre v-else-if="syntax.nodeType === 3" :class="classObj">{{syntax.nodeValue}}</pre>
+    <pre v-else-if="syntax.nodeType === 3" :class="classObj" @click="click" @dblclick.native="click">{{syntax.nodeValue}}</pre>
     <pre v-else-if="syntax.nodeName === 'break'">&#10;{{'  '.repeat(+syntax.attributes.indent.value)}}</pre>
 </template>
 	
@@ -19,6 +19,9 @@ export default class SyntaxElem extends Vue {
         let tag = this.syntax.attributes ? (this.syntax.attributes.color ? this.syntax.attributes.color.value : undefined): undefined;
         o[tag] = tag;
         return o;
+    }
+    click(){
+        this.$emit('info');
     }
     get obj(){
         const s = new XMLSerializer();

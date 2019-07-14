@@ -13,7 +13,7 @@
     </div>
         </Navbar>
 
-        <Code :syntaxes="syntax"></Code>
+        <Code :syntaxes="syntax" @info="hello"></Code>
         
         <div class="fixed inset-0 z-50 overflow-auto bg-smoke-light flex" v-if="side" @click.self="side=false">
             <div class="absolute min-h-full left bg-gray-800 w-8/12 m-auto flex-col flex p-4 shadow-lg">
@@ -28,6 +28,13 @@
             </div>
         </div>
 
+        <div class="fixed inset-0 z-40 overflow-auto bg-smoke-light flex" v-if="info" @click.self="info=false">
+            <div class="absolute min-w-full bottom-0 bg-gray-800 h-8/12 m-auto flex-col flex p-4 shadow-lg">
+            <span class="font-bold text-2xl mb-4">INFO</span>
+            <div class="flex flex-col">
+            </div>
+            </div>
+        </div>
     </div>	
 </template>
 <script lang="ts">
@@ -51,6 +58,7 @@ export default class Binary extends Vue {
   @Prop() binary!: string;
   @Prop() project!: string;
   side=false;
+    info=true;
   activeTab = 'code';
   functions:[string, string][]=[];
   syntax = [];
@@ -62,9 +70,13 @@ export default class Binary extends Vue {
       const xml = await axios.get<string>(`/binary/${this.project}/${this.binary}/code`, {params:{addr: fnAddr.split('0x')[1] }}).then(x=>x.data);
       var xp = new DOMParser();
       const elems = xp.parseFromString(xml, 'text/xml');
+      console.dir(xml);
       console.dir(await promisify(parseString)(xml, {}));
       this.syntax = elems.firstChild.lastChild.childNodes;
   }
+    async hello(){
+        console.dir(arguments);
+    }
 }
 </script>
 
