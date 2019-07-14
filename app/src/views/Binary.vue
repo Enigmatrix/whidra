@@ -13,7 +13,7 @@
     </div>
         </Navbar>
 
-        <code class="overflow-auto whitespace-pre-line">{{code}}</code>
+        <Code :syntaxes="syntax"></Code>
         
         <div class="fixed inset-0 z-50 overflow-auto bg-smoke-light flex" v-if="side" @click.self="side=false">
             <div class="absolute min-h-full left bg-gray-800 w-8/12 m-auto flex-col flex p-4 shadow-lg">
@@ -34,13 +34,17 @@
 import {Component, Vue, Prop} from 'vue-property-decorator';
 import Navbar from '../components/Navbar.vue';
 import TabHeader from '../components/TabHeader.vue';
+import Code from '../components/Code.vue';
 import axios from '../axios';
+import {parseString} from 'xml2js';
+import { promisify } from 'util';
 
 // TODO project property seems to have an extra slash
 @Component({
     components: {
         Navbar,
-        TabHeader
+        TabHeader,
+        Code
     }
 })
 export default class Binary extends Vue {
@@ -49,13 +53,17 @@ export default class Binary extends Vue {
   side=false;
   activeTab = 'code';
   functions:[string, string][]=[];
-  code='';
+  syntax = [];
   async mounted(){
       this.functions = await axios.get<[string, string][]>(`/binary/${this.project}/${this.binary}/functions`).then(x=>x.data);
-      this.select(this.functions[0]);
+      this.select( this.functions.find(x => x[0] == "main") || this.functions[0]);
   }
   async select([fnName, fnAddr]: [string, string]){
-      this.code = await axios.get<string>(`/binary/${this.project}/${this.binary}/code`, {params:{addr: fnAddr.split('0x')[1] }}).then(x=>x.data);
+      const xml = await axios.get<string>(`/binary/${this.project}/${this.binary}/code`, {params:{addr: fnAddr.split('0x')[1] }}).then(x=>x.data);
+
+      var xp = new DOMParser();
+      const elems = xp.parseFromString(xml, 'text/xml');
+      this.syntax = elems.firstChild.lastChild.childNodes;
   }
 }
 </script>
