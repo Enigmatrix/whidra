@@ -2,7 +2,7 @@
     <span v-if="syntax.childNodes && syntax.childNodes.length !== 0" :class="classObj">
         <SyntaxElem v-for="syn in syntax.childNodes" :syntax="syn"/>
     </span>
-    <pre v-else-if="syntax.nodeType === 3" :class="classObj" @click="click" @dblclick.native="click">{{syntax.nodeValue}}</pre>
+    <pre v-else-if="syntax.nodeType === 3" :class="classObj" @click="send">{{syntax.nodeValue}}</pre>
     <pre v-else-if="syntax.nodeName === 'break'">&#10;{{'  '.repeat(+syntax.attributes.indent.value)}}</pre>
 </template>
 	
@@ -13,15 +13,18 @@ import {Vue, Prop, Component, Watch} from 'vue-property-decorator';
     name: 'SyntaxElem'
 })
 export default class SyntaxElem extends Vue {
-    @Prop({required: true}) syntax: Node;
+    @Prop({required: true}) syntax: Element;
     get classObj(){
-        const o = {};
-        let tag = this.syntax.attributes ? (this.syntax.attributes.color ? this.syntax.attributes.color.value : undefined): undefined;
-        o[tag] = tag;
-        return o;
+        const cls = {};
+        let tag = this.syntax.attributes && this.syntax.attributes['color']
+            && this.syntax.attributes['color'].value || undefined;
+        cls[tag] = tag;
+        return cls;
     }
-    click(){
-        this.$emit('info');
+    send(){
+        const actual = this.syntax.parentElement;
+        if(actual.nodeName !== 'syntax')
+            this.$store.dispatch('selectNode', actual);
     }
     get obj(){
         const s = new XMLSerializer();

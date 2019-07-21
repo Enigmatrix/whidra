@@ -1,6 +1,6 @@
 <template>
     <code class="overflow-auto whitespace-pre-wrap block" id="main">
-        <SyntaxElem v-for="syn in syntaxes" :syntax="syn"/>
+        <SyntaxElem v-for="syn in syntaxes.childNodes" :syntax="syn"/>
     </code>
 </template>
 <script lang="ts">
@@ -13,19 +13,25 @@ import SyntaxElem from '../components/SyntaxElem.vue';
     }
 })
 export default class Code extends Vue {
-    @Prop({required: true}) syntaxes: Object;
+    @Prop({required: true}) syntaxes: Element;
 }
 </script>
+<style>
+@import url('https://fonts.googleapis.com/css?family=Source+Code+Pro&display=swap');
+</style>
 
 <style lang="stylus">
 #main pre
     display inline
+    font-family 'Source Code Pro Patched'
 
 #main span
     white-space nowrap
 #main
     background #1E1E1E
     color #D4D4D4
+    font-family 'Source Code Pro Patched'
+    padding-left 1rem
 
 .type
     color #569cd6

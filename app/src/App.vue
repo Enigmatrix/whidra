@@ -6,3 +6,12 @@
 <style lang="stylus">
 @import 'assets/styles/tailwind.postcss';
 </style>
+<style>
+@font-face {
+  font-family: 'Source Code Pro Patched';
+  src: local('Source Code Pro Patched'), url('/SourceCodeProPatched.ttf');
+}
+* {
+  text-rendering: optimizeLegibility;
+}
+</style>
