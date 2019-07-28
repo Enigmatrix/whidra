@@ -20,6 +20,7 @@ binary.get('/:project/:binary/code', async (req: Request, res: Response) => {
         '-postScript', '/opt/ghidra/custom_scripts/GhidraDecompiler.java' , addr, '-readonly', '-p']
 
     let out = await ghidraCmd(cmd, true);
+
     const needle = 'INFO  GhidraDecompiler.java> DECOMP RESULT START (GhidraScript)';
     out = out.substr(out.indexOf(needle) + needle.length)
     res.json(out);

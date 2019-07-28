@@ -33,7 +33,6 @@ import ghidra.program.model.pcode.*;
 import java.io.*;
 
 import java.util.ArrayList;
-import com.google.gson.*;
 import java.lang.reflect.*;
 import java.io.*;
 
@@ -80,7 +79,7 @@ public class GhidraDecompiler extends HeadlessScript {
 
     // Decompile with a 5-seconds timeout
     println("DECOMP RESULT START");
-    di.decompileFunctionXML(f, 30000, null);
+    di.decompileFunctionXML(f, -1, null);
   }
 
   protected Function getFunction(int address) {

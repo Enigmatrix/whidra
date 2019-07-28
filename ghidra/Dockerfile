@@ -18,27 +18,23 @@ RUN apt-get update && apt-get install -y unzip wget gettext-base patch sudo ed l
     rm ghidra.zip && \
     ln -s ghidra* ghidra && \
     cd ghidra && \
-    rm -rf docs && \
-    cd .. && \
-    chown -R ghidra: ghidra*
+    rm -rf docs
 
 VOLUME /srv/repositories
+
 WORKDIR /opt/ghidra
 ENV ghidra_home=/opt/ghidra
+
 COPY ./scripts /opt/ghidra/custom_scripts
 COPY server.conf /opt/ghidra/server
 COPY start.sh /opt/ghidra/server
 RUN server/svrInstall
+RUN cd .. && chown -R ghidra: ghidra*
 
 RUN echo "0.0.0.0  ${HOST}" >> /etc/hosts && \
     echo "wrapper.java.additional.4=-Djava.rmi.server.hostname=${HOST}" >> server/server.conf && \
     cp /etc/hosts /opt/ghidra/server
 
-RUN mkdir -p /root/.ghidra/.ghidra-9.0/plugins
-RUN wget https://search.maven.org/remotecontent?filepath=com/google/code/gson/gson/2.8.5/gson-2.8.5.jar -O /root/.ghidra/.ghidra-9.0/plugins/gson.jar
-
-EXPOSE 13100
-EXPOSE 13101
-EXPOSE 13102
+EXPOSE 13100, 13101, 13102
 
 CMD server/start.sh

@@ -39,7 +39,6 @@ import TabHeader from '../components/TabHeader.vue';
 import Code from '../components/Code.vue';
 import Info from '../components/Info.vue';
 import axios from '../axios';
-import {parseString} from 'xml2js';
 import { promisify } from 'util';
 import {mapState, mapMutations, mapActions, mapGetters} from 'vuex';
 
@@ -61,6 +60,10 @@ export default class Binary extends Vue {
   side=false;
   info=true;
   activeTab = 'code';
+  functions!: [string, string][];
+  setPre!: (pre: {binary:string, project:string}) => Promise<void>;
+  getFunctions!: () => Promise<void>;
+  setFunction!: (addr: string) => Promise<void>;
 
     
   async mounted(){
