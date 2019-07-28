@@ -35,6 +35,7 @@ RUN echo "0.0.0.0  ${HOST}" >> /etc/hosts && \
     echo "wrapper.java.additional.4=-Djava.rmi.server.hostname=${HOST}" >> server/server.conf && \
     cp /etc/hosts /opt/ghidra/server
 
-EXPOSE 13100, 13101, 13102
+EXPOSE 13100 13101 13102
+USER ghidra
 
 CMD server/start.sh
