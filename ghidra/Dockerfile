@@ -20,23 +20,25 @@ RUN apt-get update && apt-get install -y unzip wget gettext-base patch sudo ed l
     cd ghidra && \
     rm -rf docs && \
     cd .. && chown -R ghidra: ghidra* && \
-    cd /opt && chown ghidra .
 
 VOLUME /srv/repositories
 
 WORKDIR /opt/ghidra
 ENV ghidra_home=/opt/ghidra
 
-COPY --chown=ghidra:ghidra . /opt/ghidra/server
+COPY --chown=ghidra:ghidra server /opt/ghidra/server
+RUN ./support/analyzeHeadless . empty -postScript ./server/BuildSingleGhidraJar.java /opt/ghidra/ghidra.jar -noanalysis -deleteProject
+
 RUN server/svrInstall
 
 RUN echo "0.0.0.0  ${HOST}" >> /etc/hosts && \
     echo "wrapper.java.additional.4=-Djava.rmi.server.hostname=${HOST}" >> server/server.conf && \
     cp /etc/hosts /opt/ghidra/server
 
-RUN ./support/analyzeHeadless . empty -postScript ./server/BuildSingleGhidraJar.java /opt/ghidra.jar -noanalysis -deleteProject
-
 EXPOSE 13100 13101 13102
 USER ghidra
+
+COPY --chown=ghidra:ghidra bridge /opt/ghidra/bridge
+RUN cd bridge && ./gradlew --no-daemon shadowJar
 
 CMD server/start.sh
