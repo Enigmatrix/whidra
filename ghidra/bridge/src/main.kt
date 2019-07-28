@@ -1,3 +1,5 @@
+import bridge.Repository
+import com.google.protobuf.Empty
 import ghidra.GhidraJarApplicationLayout
 import ghidra.app.util.importer.AutoImporter
 import ghidra.framework.Application
@@ -8,6 +10,8 @@ import ghidra.framework.client.RepositoryServerAdapter
 import ghidra.framework.model.ProjectData
 import ghidra.framework.protocol.ghidra.GhidraURLConnection
 import ghidra.util.task.TaskMonitor
+import io.grpc.stub.StreamObserver
+import io.grpc.stub.StreamObservers
 import java.io.File
 import java.lang.Exception
 import java.net.URL
@@ -20,8 +24,8 @@ lateinit var server: RepositoryServerAdapter
 
 fun main() {
     init()
-    val server = connect()
-    server.repositoryNames
+    server = connect()
+
 }
 
 fun init() {
@@ -37,6 +41,17 @@ fun connect(): RepositoryServerAdapter {
     return ClientUtil.getRepositoryServer(host, port, true)
 }
 
+class BridgeService : bridge.BridgeServiceGrpc.BridgeServiceImplBase() {
+    override fun getRepositories(request: Empty?, response: StreamObserver<Repository>?) {
+        server.repositoryNames.forEach {
+            response?.onNext(Repository.newBuilder().setName(it).build())
+        }
+        response?.onCompleted()
+    }
+}
+
+
+
 fun repositories(): Array<String> {
     return server.repositoryNames
 }
@@ -45,8 +60,8 @@ fun users(): Array<String> {
     return server.allUsers
 }
 
-fun binaries(repo: String): Iterable<String> {
-    val repo = server.getRepository(repo)
+fun binaries(repoName: String): Iterable<String> {
+    val repo = server.getRepository(repoName)
     repo.connect()
     val binaries = repo.getItemList("/").map { it.name }
     repo.disconnect()
@@ -63,7 +78,7 @@ fun importBinary(repoName: String, binary: String) {
         File("/uploads/$binary"),
         project.rootFolder,
         project, null, TaskMonitor.DUMMY)
-    
+
 }
 
 fun openProject(repoName: String, readOnly: Boolean): ProjectData {
