@@ -1,34 +1,33 @@
 import bridge.Repository
 import com.google.protobuf.Empty
 import ghidra.GhidraJarApplicationLayout
-import ghidra.app.util.importer.AutoImporter
-import ghidra.app.util.importer.MessageLog;
-import ghidra.app.plugin.core.analysis.AutoAnalysisManager;
+import ghidra.app.plugin.core.analysis.AutoAnalysisManager
 import ghidra.app.util.PseudoDisassembler
 import ghidra.app.util.PseudoFlowProcessor
 import ghidra.app.util.PseudoInstruction
+import ghidra.app.util.importer.AutoImporter
+import ghidra.app.util.importer.MessageLog
 import ghidra.framework.Application
 import ghidra.framework.HeadlessGhidraApplicationConfiguration
 import ghidra.framework.client.ClientUtil
 import ghidra.framework.client.PasswordClientAuthenticator
 import ghidra.framework.client.RepositoryServerAdapter
+import ghidra.framework.data.CheckinHandler
 import ghidra.framework.model.ProjectData
 import ghidra.framework.protocol.ghidra.GhidraURLConnection
+import ghidra.program.model.listing.CodeUnitFormat
+import ghidra.program.model.listing.CodeUnitFormatOptions.ShowBlockName
+import ghidra.program.model.listing.CodeUnitFormatOptions.ShowNamespace
+import ghidra.program.model.listing.Function
 import ghidra.program.model.listing.Program
 import ghidra.program.util.GhidraProgramUtilities
-import ghidra.util.task.TaskMonitor
-import io.grpc.stub.StreamObserver
-import ghidra.program.model.listing.Function
-import java.io.File
-import java.lang.Exception
-import java.net.URL
 import ghidra.util.Msg
 import ghidra.util.exception.CancelledException
 import ghidra.util.exception.VersionException
+import io.grpc.stub.StreamObserver
+import java.io.File
 import java.io.IOException
-import ghidra.framework.data.CheckinHandler
-import WhidraTaskMonitor
-import kotlin.system.measureTimeMillis
+import java.net.URL
 
 
 val host = "localhost"
@@ -186,6 +185,9 @@ fun disassemble(program: Program, functionAddress: Int) {
         }
 
         override fun process(instr: PseudoInstruction?): Boolean {
+            val formatter =
+                CodeUnitFormat(ShowBlockName.NEVER, ShowNamespace.NEVER)
+
             if (instr == null) {
                 return false;
             }
@@ -196,7 +198,7 @@ fun disassemble(program: Program, functionAddress: Int) {
                 }
             }
 
-            println(String.format("%s: %s", instr.address, instr));
+            println(String.format("%s: %s", instr.address, formatter.getRepresentationString(instr)));
             return true;
         }
     });
