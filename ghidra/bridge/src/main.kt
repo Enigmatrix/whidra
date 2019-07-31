@@ -27,6 +27,7 @@ import ghidra.util.exception.CancelledException
 import ghidra.util.exception.VersionException
 import java.io.IOException
 import ghidra.framework.data.CheckinHandler
+import WhidraTaskMonitor
 import kotlin.system.measureTimeMillis
 
 
@@ -35,6 +36,7 @@ val port = 13100
 val username = "daniellimws"
 
 lateinit var server: RepositoryServerAdapter
+var monitor = WhidraTaskMonitor()
 
 fun main() {
     init()
@@ -93,7 +95,7 @@ fun importBinary(repoName: String, binary: String): Program {
     return AutoImporter.importByUsingBestGuess(
         File(binary),
         project.rootFolder,
-        project, MessageLog(), TaskMonitor.DUMMY
+        project, MessageLog(), monitor
     )
 }
 
@@ -104,13 +106,13 @@ fun analyzeProgram(program: Program) {
     try {
         mgr.initializeOptions()
         mgr.reAnalyzeAll(null)
-        mgr.startAnalysis(TaskMonitor.DUMMY)
+        mgr.startAnalysis(monitor)
         GhidraProgramUtilities.setAnalyzedFlag(program, true);
     } finally {
         program.endTransaction(txId, true)
     }
 
-    program.save("Auto-analysis", TaskMonitor.DUMMY)
+    program.save("Auto-analysis", monitor)
 }
 
 fun commitProgram(repoName: String, program: Program, comment: String) {
@@ -120,7 +122,7 @@ fun commitProgram(repoName: String, program: Program, comment: String) {
     val df = program.domainFile
     when {
         df.canAddToRepository() -> try {
-            df.addToVersionControl(comment, false, TaskMonitor.DUMMY)
+            df.addToVersionControl(comment, false, monitor)
             Msg.info(null, "REPORT: Added file to repository: " + df.pathname)
         } catch (e: IOException) {
             Msg.error(null, df.pathname + ": File check-in failed - " + e.message)
@@ -145,7 +147,7 @@ fun commitProgram(repoName: String, program: Program, comment: String) {
                 override fun createKeepFile(): Boolean {
                     return false
                 }
-            }, true, TaskMonitor.DUMMY)
+            }, true, monitor)
             Msg.info(null, "REPORT: Committed file changes to repository: " + df.pathname)
         } catch (e: IOException) {
             Msg.error(null, df.pathname + ": File check-in failed - " + e.message)
