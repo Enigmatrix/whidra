@@ -1,3 +1,5 @@
+package tool
+
 import ghidra.util.task.TaskMonitorAdapter
 import ghidra.util.Msg
 import ghidra.util.exception.CancelledException
