@@ -1,7 +1,6 @@
 import ghidra.GhidraJarApplicationLayout
 import ghidra.framework.Application as GhidraApplication
 import ghidra.framework.HeadlessGhidraApplicationConfiguration
-<<<<<<< HEAD
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
