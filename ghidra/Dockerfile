@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y unzip wget gettext-base patch sudo ed l
     ln -s ghidra* ghidra && \
     cd ghidra && \
     rm -rf docs && \
-    cd .. && chown -R ghidra: ghidra* && \
+    cd .. && chown -R ghidra: ghidra*
 
 VOLUME /srv/repositories
 
@@ -38,7 +38,7 @@ RUN echo "0.0.0.0  ${HOST}" >> /etc/hosts && \
 EXPOSE 13100 13101 13102
 USER ghidra
 
-COPY --chown=ghidra:ghidra bridge /opt/ghidra/bridge
-RUN cd bridge && ./gradlew --no-daemon shadowJar
+#COPY --chown=ghidra:ghidra bridge /opt/ghidra/bridge
+#RUN cd bridge && ./gradlew --no-daemon shadowJar
 
 CMD server/start.sh

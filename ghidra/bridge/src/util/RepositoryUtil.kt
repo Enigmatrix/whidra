@@ -13,7 +13,7 @@ object RepositoryUtil {
     private lateinit var server: RepositoryServerAdapter
     private const val host = "localhost"
     private const val port = 13100
-    private const val password = "password"
+    private const val password = "changeme"
 
     fun initServer() {
         // no need to put username since it just defaults to computer username

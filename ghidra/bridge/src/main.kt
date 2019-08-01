@@ -27,6 +27,7 @@ import util.RepositoryUtil.initServer
 
 
 fun main() {
+    init()
     val server = embeddedServer(Netty, 8080, module = Application::module)
     server.start(wait = true)
 }
