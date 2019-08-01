@@ -2,10 +2,10 @@ package tool
 
 import ghidra.util.task.TaskMonitorAdapter
 import ghidra.util.Msg
-import ghidra.util.exception.CancelledException
 
-class WhidraTaskMonitor : TaskMonitorAdapter() {
-    var max: Long = 0
+class WhidraTaskMonitor(taskName: String) : TaskMonitorAdapter() {
+    private var max: Long = 0
+    private var taskName: String = taskName
 
     override fun initialize(max: Long) {
         this.max = max
@@ -13,14 +13,14 @@ class WhidraTaskMonitor : TaskMonitorAdapter() {
     }
 
     override fun setMessage(msg: String?) {
-        Msg.info(this, msg)
+        Msg.info(taskName, msg)
     }
 
     override fun setProgress(value: Long) {
-        Msg.info(this, "Progress set to: $value/$max")
+        Msg.info(taskName, "Progress set to: $value/$max")
     }
 
     override fun incrementProgress(incrementAmount: Long) {
-        // Msg.info(this, "Increment progress by: $incrementAmount")
+        // Msg.info(taskName, "Increment progress by: $incrementAmount")
     }
 }
