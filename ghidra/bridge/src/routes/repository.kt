@@ -1,5 +1,7 @@
 package routes
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import ghidra.app.plugin.core.analysis.AutoAnalysisManager
 import ghidra.app.util.importer.AutoImporter
 import ghidra.app.util.importer.MessageLog
@@ -7,16 +9,23 @@ import ghidra.framework.model.ProjectData
 import ghidra.framework.protocol.ghidra.GhidraURLConnection
 import ghidra.program.model.listing.Program
 import ghidra.program.util.GhidraProgramUtilities
+import io.ktor.application.ApplicationCall
 import io.ktor.application.call
+import io.ktor.http.CacheControl
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.request.receiveMultipart
 import io.ktor.request.receiveParameters
+import io.ktor.response.cacheControl
 import io.ktor.response.respond
+import io.ktor.response.respondOutputStream
+import io.ktor.response.respondTextWriter
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+import io.ktor.util.pipeline.PipelineContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import model.Binary
@@ -52,6 +61,7 @@ class RepositoryService : Service() {
         GhidraProgramUtilities.setAnalyzedFlag(program, true);
         program.endTransaction(txId, true)
 
+        delay(10000)
         program.save("Analysis", monitor())
         program.domainFile.addToVersionControl("Add file $binaryName", false, monitor())
 
@@ -75,6 +85,29 @@ class RepositoryService : Service() {
         repo.isReadOnly = readOnly
         return repo.projectData ?: throw Exception("Project data not found")
     }
+
+}
+
+suspend fun <T> PipelineContext<Unit, ApplicationCall>.taskSSE(task: Task<T>) {
+    call.response.cacheControl(CacheControl.NoCache(null))
+    coroutineScope {
+        launch {
+            val mapper = ObjectMapper()
+            call.respondTextWriter(contentType = ContentType.Text.EventStream) {
+                for (event in task.events) {
+                    withContext(Dispatchers.IO) {
+                        write("data:")
+                        write(mapper.writeValueAsString(event))
+                        write("\n\n")
+                        flush()
+                    }
+                }
+            }
+        }
+        withContext(Dispatchers.Default){
+            task.execute()
+        }
+    }
 }
 
 fun Route.repository(svc: RepositoryService) {
@@ -88,21 +121,7 @@ fun Route.repository(svc: RepositoryService) {
             val repoName = body["repository"] ?: throw Exception("repository field must not be empty")
             val binName = body["binary"] ?: throw Exception("binary field must not be empty")
 
-            val task = svc.importBinary(repoName, binName)
-            launch {
-                for (event in task.events) {
-                    when (event) {
-                        is Event.Indeterminate -> println("Task Indeterminate")
-                        is Event.Message -> println("Task Message: ${event.msg}")
-                        is Event.Progress -> println("Task Progress: ${event.current}/${event.max} (${100.0*event.current/event.max})")
-                        is Event.Completed<*> -> println("Task Completed: ${event.value}")
-                    }
-                }
-            }
-            withContext(Dispatchers.Default){
-                task.execute()
-            }
-            call.respond(HttpStatusCode.OK)
+            taskSSE(svc.importBinary(repoName, binName))
         }
 
         post("delete") {
