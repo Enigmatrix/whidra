@@ -8,7 +8,7 @@ apply plugin: 'application'
 apply plugin: 'idea'
 apply plugin: 'kotlin'
 
-mainClassName = 'MainKt'
+mainClassName = 'main.MainKt'
 archivesBaseName = 'ghidra-bridge'
 
 group 'whidra'
@@ -45,6 +45,6 @@ compileTestKotlin {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'MainKt'
+        attributes 'Main-Class': 'main.MainKt'
     }
 }
