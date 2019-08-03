@@ -37,7 +37,7 @@ class BinaryService : Service() {
         val decompiler = DecompilerXML()
         decompiler.openProgram(program)
 
-        val functions = program.listing.getFunctions(true)
+        val functions = program.listing.getFunctions(true).toList()
         val main = functions.find { it.name == "main" } ?: functions.first()
 
         val stream = decompiler.decompileFunctionXML(main, -1, TaskMonitor.DUMMY)?.readAllBytes()
@@ -51,6 +51,7 @@ class BinaryService : Service() {
 fun Route.binary(svc: BinaryService) {
     route("binary") {
 
+        // curl "http://localhost:8000/api/binary/functions?repository=TEST&binary=challenge"
         get("functions") {
             val repository = call.request.queryParameters["repository"] ?: throw Exception("repository not found")
             val binary = call.request.queryParameters["binary"] ?: throw Exception("binary not found")

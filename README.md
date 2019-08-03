@@ -157,6 +157,30 @@ You will see something like this
 
 ![outputapi.jpg](img/outputapi.jpg)
 
+
+
+You can import binary files manually by selecting the repository you created, right click on the file and click on `add to version control`. Double check with `curl localhost:8000/api/respository` and the binary should be listed.
+
+
+Other APIs like :
+
+Importing the binary
+
+```
+curl -X POST "http://localhost:8000/api/repository/import?binary=/path/to/binary&repository=REPO_NAME"
+```
+
+Getting Code in XML format
+```
+curl "http://localhost:8000/api/binary/code?repository=TEST&binary=challenge"
+```
+
+Getting functions from binary
+```
+curl "http://localhost:8000/api/binary/code?functions=TEST&binary=challenge"
+```
+
+
 ---
 
 
