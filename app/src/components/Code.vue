@@ -13,7 +13,7 @@ import SyntaxElem from '../components/SyntaxElem.vue';
     }
 })
 export default class Code extends Vue {
-    @Prop({required: true}) syntaxes: Element;
+    @Prop({required: true}) syntaxes!: Element;
 }
 </script>
 <style>

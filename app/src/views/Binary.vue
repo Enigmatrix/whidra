@@ -39,7 +39,6 @@ import TabHeader from '../components/TabHeader.vue';
 import Code from '../components/Code.vue';
 import Info from '../components/Info.vue';
 import axios from '../axios';
-import { promisify } from 'util';
 import {mapState, mapMutations, mapActions, mapGetters} from 'vuex';
 
 // TODO project property seems to have an extra slash

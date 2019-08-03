@@ -8,22 +8,19 @@
 	
 <script lang="ts">
 import {Vue, Prop, Component, Watch} from 'vue-property-decorator';
+import {syntaxClassObj} from '../util/index';
 
 @Component({
     name: 'SyntaxElem'
 })
 export default class SyntaxElem extends Vue {
-    @Prop({required: true}) syntax: Element;
+    @Prop({required: true}) syntax!: Element;
     get classObj(){
-        const cls = {};
-        let tag = this.syntax.attributes && this.syntax.attributes['color']
-            && this.syntax.attributes['color'].value || undefined;
-        cls[tag] = tag;
-        return cls;
+        return syntaxClassObj(this.syntax)
     }
     send(){
         const actual = this.syntax.parentElement;
-        if(actual.nodeName !== 'syntax')
+        if(actual != null && actual.nodeName !== 'syntax')
             this.$store.dispatch('selectNode', actual);
     }
     get obj(){
