@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install -y unzip wget gettext-base patch sudo ed l
     ln -s ghidra* ghidra && \
     cd ghidra && \
     rm -rf docs && \
-    cd .. && chown -R ghidra: ghidra*
+
+    cd .. && chown -R ghidra: ghidra* 
 
 VOLUME /srv/repositories
 
