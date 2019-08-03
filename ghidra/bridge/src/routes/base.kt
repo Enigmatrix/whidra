@@ -1,11 +1,14 @@
 package routes
 
+import ghidra.framework.model.ProjectData
+import ghidra.framework.protocol.ghidra.GhidraURLConnection
 import ghidra.util.Msg
 import ghidra.util.task.TaskMonitor
 import ghidra.util.task.TaskMonitorAdapter
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import model.Event
+import java.net.URL
 
 class Task<T>(val block: suspend Task<T>.() -> T) {
     val events = Channel<Event>()
@@ -45,10 +48,15 @@ class Task<T>(val block: suspend Task<T>.() -> T) {
 }
 
 fun <T> task(block: suspend Task<T>.() -> T): Task<T> {
-    val t = Task(block)
-    return t
+    return Task(block)
 }
 
 open class Service {
+
+    fun openProject(repoName: String, readOnly: Boolean): ProjectData {
+        val repo = GhidraURLConnection(URL("ghidra", "localhost", "/$repoName"))
+        repo.isReadOnly = readOnly
+        return repo.projectData ?: throw Exception("Project data not found")
+    }
 
 }

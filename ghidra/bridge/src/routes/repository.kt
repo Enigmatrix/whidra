@@ -61,15 +61,10 @@ class RepositoryService : Service() {
         GhidraProgramUtilities.setAnalyzedFlag(program, true);
         program.endTransaction(txId, true)
 
-        delay(10000)
         program.save("Analysis", monitor())
         program.domainFile.addToVersionControl("Add file $binaryName", false, monitor())
 
-        return@task
-    }
-
-    suspend fun <T> cpu(block: suspend CoroutineScope.() -> T): T {
-        return withContext(Dispatchers.Default, block)
+        project.close()
     }
 
     fun deleteBinaries(repoName: String){
@@ -78,20 +73,13 @@ class RepositoryService : Service() {
             it.delete()
         }
     }
-
-
-    fun openProject(repoName: String, readOnly: Boolean): ProjectData {
-        val repo = GhidraURLConnection(URL("ghidra", "localhost", "/$repoName"))
-        repo.isReadOnly = readOnly
-        return repo.projectData ?: throw Exception("Project data not found")
-    }
-
 }
 
 suspend fun <T> PipelineContext<Unit, ApplicationCall>.taskSSE(task: Task<T>) {
     call.response.cacheControl(CacheControl.NoCache(null))
     coroutineScope {
         launch {
+            // TODO this objectmapper may not be the same as the one used by the pipeline. Maybe we should sync them?
             val mapper = ObjectMapper()
             call.respondTextWriter(contentType = ContentType.Text.EventStream) {
                 for (event in task.events) {
