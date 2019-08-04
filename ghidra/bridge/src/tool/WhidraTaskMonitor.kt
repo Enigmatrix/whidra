@@ -1,7 +1,7 @@
 package tool
 
-import ghidra.util.task.TaskMonitorAdapter
 import ghidra.util.Msg
+import ghidra.util.task.TaskMonitorAdapter
 
 class WhidraTaskMonitor(taskName: String) : TaskMonitorAdapter() {
     private var max: Long = 0

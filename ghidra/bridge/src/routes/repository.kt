@@ -14,6 +14,7 @@ import io.ktor.application.call
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.streamProvider
 import io.ktor.request.receive
 import io.ktor.request.receiveMultipart
 import io.ktor.request.receiveParameters
@@ -46,10 +47,10 @@ class RepositoryService : Service() {
         RepositoryUtil.newRepository(repoName)
     }
 
-    fun importBinary(repoName: String, binaryName: String) = task<Unit> {
+    fun importBinary(repoName: String, binary: File) = task<Unit> {
         val project = openProject(repoName, false)
         val program = AutoImporter.importByUsingBestGuess(
-            File(binaryName),
+            binary,
             project.rootFolder,
             this, MessageLog(), monitor())
 
@@ -62,7 +63,7 @@ class RepositoryService : Service() {
         program.endTransaction(txId, true)
 
         program.save("Analysis", monitor())
-        program.domainFile.addToVersionControl("Add file $binaryName", false, monitor())
+        program.domainFile.addToVersionControl("Add file ${binary.nameWithoutExtension}", false, monitor())
 
         project.close()
     }
@@ -98,18 +99,32 @@ suspend fun <T> PipelineContext<Unit, ApplicationCall>.taskSSE(task: Task<T>) {
     }
 }
 
-fun Route.repository(svc: RepositoryService) {
+fun Route.routesFor(svc: RepositoryService) {
     route("/repository") {
         get {
             call.respond(svc.getAllRepositories())
         }
 
         post("import") {
-            val body = call.request.queryParameters
-            val repoName = body["repository"] ?: throw Exception("repository field must not be empty")
-            val binName = body["binary"] ?: throw Exception("binary field must not be empty")
+            val form = call.receiveForm();
+            val repoName = form.fields["repository"] ?: throw Exception("repository field must not be empty")
+            val binary = form.files["binary"] ?: throw Exception("binary field must not be empty")
+            // create file
+            val file = File("/tmp/${binary.originalFileName}")
+            withContext(Dispatchers.IO){
+                file.createNewFile()
+            }
+            // copy file stream into file
+            binary.streamProvider().use { input ->
+                file.outputStream().use { fileOut ->
+                    input.copyTo(fileOut)
+                }
+            }
 
-            taskSSE(svc.importBinary(repoName, binName))
+            taskSSE(svc.importBinary(repoName, file))
+
+            //delete afterwards
+            file.delete()
         }
 
         post("delete") {
@@ -120,8 +135,8 @@ fun Route.repository(svc: RepositoryService) {
         }
 
         post("new") {
-            val body = call.receive<Map<String, Any>>()
-            val repoName = body["repository"] as String
+            val form = call.receiveForm();
+            val repoName = form.fields["name"] ?: throw Exception("name field must not be empty");
             svc.newRepository(repoName)
             call.respond(HttpStatusCode.OK)
         }

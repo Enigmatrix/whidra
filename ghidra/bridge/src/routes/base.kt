@@ -5,8 +5,14 @@ import ghidra.framework.protocol.ghidra.GhidraURLConnection
 import ghidra.util.Msg
 import ghidra.util.task.TaskMonitor
 import ghidra.util.task.TaskMonitorAdapter
+import io.ktor.application.ApplicationCall
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
+import io.ktor.request.isMultipart
+import io.ktor.request.receiveMultipart
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
+import kotlinx.io.core.Input
 import model.Event
 import java.net.URL
 
@@ -59,4 +65,30 @@ open class Service {
         return repo.projectData ?: throw Exception("Project data not found")
     }
 
+}
+
+class Form {
+    val fields = HashMap<String, String>();
+    val files = HashMap<String, PartData.FileItem>();
+    val blobs = HashMap<String, PartData.BinaryItem>();
+}
+
+suspend fun ApplicationCall.receiveForm(): Form {
+    val form = Form()
+    if(!request.isMultipart()) { return form; }
+    val multipart = receiveMultipart();
+    multipart.forEachPart { part ->
+        when (part) {
+            is PartData.FormItem -> {
+                form.fields[part.name.orEmpty()] = part.value;
+            }
+            is PartData.FileItem -> {
+                form.files[part.name.orEmpty()] = part;
+            }
+            is PartData.BinaryItem -> {
+                form.blobs[part.name.orEmpty()] = part;
+            }
+        }
+    }
+    return form;
 }
