@@ -20,16 +20,16 @@ import model.Repository
 import org.slf4j.event.Level
 import routes.BinaryService
 import routes.RepositoryService
-import routes.binary
-import routes.repository
+import routes.routesFor
 import util.RepositoryUtil.initServer
 import ghidra.framework.Application as GhidraApplication
 
 
 fun main() {
     init()
-    val server = embeddedServer(Netty, 8000, module = Application::module)
-    server.start(wait = true)
+    embeddedServer(Netty, 8000,
+        module = Application::module)
+        .start(wait = true)
 }
 
 fun Application.module() {
@@ -47,37 +47,10 @@ fun Application.module() {
 
     routing {
         route("api") {
-            get {
-                call.respond(Repository("gctf-2019", listOf(Binary("mimikatz"), Binary("nonullsawal"))))
-            }
-
-            binary(binSvc)
-            repository(repoSvc)
+            routesFor(binSvc)
+            routesFor(repoSvc)
         }
     }
-/*
-    init()
-
-    Msg.info("Main", "Start: Import Binary")
-    val program = ImportBinaryTool.importBinary("testRepo", "bins/heapschool", WhidraTaskMonitor("Import Binary"))
-    Msg.info("Main>", "End: Import Binary")
-
-    Msg.info("Main", "Start: Analyze Program")
-    AutoAnalysisTool.analyzeProgram(program, WhidraTaskMonitor("Analyze Program"))
-    Msg.info("Main", "End: Analyze Program")
-
-    Msg.info("Main", "Start: Disassemble")
-    DisassemblerTool.disassemble(program, 0x400e05)
-    Msg.info("Main", "End: Disassemble")
-
-    Msg.info("Main", "Start: Commit Program")
-    CommitProgramTool.commitProgram(
-        "testRepo",
-        program,
-        "Add ${program.name} to version control",
-        WhidraTaskMonitor("Commit Program")
-    )
-    Msg.info("Main", "End: Commit Program")*/
 }
 
 fun init() {

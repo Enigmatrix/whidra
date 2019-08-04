@@ -37,7 +37,7 @@ class BinaryService : Service() {
         val decompiler = DecompilerXML()
         decompiler.openProgram(program)
 
-        val functions = program.listing.getFunctions(true)
+        val functions = program.listing.getFunctions(true).toList()
         val main = functions.find { it.name == "main" } ?: functions.first()
 
         val stream = decompiler.decompileFunctionXML(main, -1, TaskMonitor.DUMMY)?.readAllBytes()
@@ -48,7 +48,7 @@ class BinaryService : Service() {
 
 }
 
-fun Route.binary(svc: BinaryService) {
+fun Route.routesFor(svc: BinaryService) {
     route("binary") {
 
         get("functions") {
