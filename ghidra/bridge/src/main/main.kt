@@ -64,4 +64,46 @@ fun init() {
     initServer()
 }
 
+/*
+    /*val run3 = measureTimeMillis {
+        val repo = GhidraURLConnection(URL("ghidra", host, "/" + server.repositoryNames[0]))
+        repo.isReadOnly = false
 
+        val file = repo.projectData.rootFolder.files[0] as GhidraFile
+
+        var program = file.getDomainObject(2, true, false, TaskMonitor.DUMMY) as ProgramDB
+        println(program.name)
+        program = edit(file, "Rename") { prog ->
+            val main = prog.listing.getFunctions(true)
+            .first { it.name == "FUN_00101069" }
+            main.setName("main", SourceType.USER_DEFINED)
+        }
+    }
+
+    println("rename took: ${run3/1000.0}")
+*/
+
+}
+
+//TODO change this to an extension method of domainfile?
+fun edit(file: DomainFile, msg: String, block: (ProgramDB) -> Unit): ProgramDB  {
+    //TODO check return code
+    file.checkout(false, TaskMonitor.DUMMY)
+    val program = file.getDomainObject(2, true, false, TaskMonitor.DUMMY) as ProgramDB
+    val tx = program.startTransaction(msg)
+    //TODO try catch
+    block(program)
+    //TODO wtf is this boolean?
+    program.endTransaction(tx, true)
+    file.save(TaskMonitor.DUMMY)
+    file.checkin(CheckinWithComment(msg), true, TaskMonitor.DUMMY)
+    return program
+}
+
+class CheckinWithComment(val cmt: String): CheckinHandler {
+    override fun getComment() = cmt
+    override fun createKeepFile() = false
+    override fun keepCheckedOut() = false
+
+}
+*/
