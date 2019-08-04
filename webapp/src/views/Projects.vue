@@ -13,7 +13,7 @@
                     </svg>
                     <span class="text-2xl">{{proj.name}}</span>
                     <div class="flex-1"></div>
-                    <button @click="importBinary()">+ BINARY</button>
+                    <button @click="importBinary(proj.name)">+ BINARY</button>
                 </div>
                 <div class="ml-4 mt-2">
                     <div class="mt-1 font-code flex items-center" v-for="bin in proj.binaries" :key="bin.name">
@@ -29,9 +29,9 @@
             <input required class="bg-gray-700 my-2 font-code text-xl appearance-none p-2" placeholder="NAME" name="name">
             <button type="submit" class="bg-blue-500 rounded p-2 mt-2 font-bold">SUBMIT</button>
         </Modal>
-        <Modal ref="importBinaryModal" title="IMPORT BINARY" >
+        <Modal ref="importBinaryModal" title="IMPORT BINARY" @submit="importBinarySubmit">
             <select name="repository" class="bg-gray-800 text-xl p-2">
-                <option :value="proj.name" v-for="proj in projects">{{proj.name}}</option>
+                <option :value="proj.name" v-for="proj in projects" :selected="proj.name === selectedProjName">{{proj.name}}</option>
             </select>
             <input type="file" name="binary" class="">
             <button type="submit" class="bg-blue-500 rounded p-2 mt-2 font-bold">SUBMIT</button>
@@ -56,6 +56,7 @@ export default class Projects extends Vue {
     };
 
     private projects: Repository[] = [];
+    private selectedProjName: string|null = null;
 
 
     public async mounted() {
@@ -72,8 +73,13 @@ export default class Projects extends Vue {
         this.projects.push({ name, binaries: []});
     }
 
-    public importBinary() {
+    public importBinary(projName: string) {
+        this.selectedProjName = projName;
         this.$refs.importBinaryModal.open();
+    }
+
+    public async importBinarySubmit(data: FormData) {
+        // TODO
     }
 }
 </script>
