@@ -17,7 +17,7 @@ services:
       - "13102:13102"
   app:
     build:
-      context: ./app
+      context: ./webapp
     container_name: whidra_app
     networks:
       - main
