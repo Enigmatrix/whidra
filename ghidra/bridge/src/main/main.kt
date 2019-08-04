@@ -34,6 +34,7 @@ fun main() {
 
 fun Application.module() {
     install(ContentNegotiation) {
+        //Jackson allows you to handle JSON content easily
         jackson { }
     }
 

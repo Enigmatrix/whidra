@@ -51,6 +51,7 @@ class BinaryService : Service() {
 fun Route.routesFor(svc: BinaryService) {
     route("binary") {
 
+        // curl "http://localhost:8000/api/binary/functions?repository=TEST&binary=challenge"
         get("functions") {
             val repository = call.request.queryParameters["repository"] ?: throw Exception("repository not found")
             val binary = call.request.queryParameters["binary"] ?: throw Exception("binary not found")
