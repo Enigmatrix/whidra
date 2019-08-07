@@ -7,6 +7,8 @@ import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
+import io.ktor.features.StatusPages
+import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.request.path
 import io.ktor.response.respond
@@ -21,6 +23,8 @@ import org.slf4j.event.Level
 import routes.BinaryService
 import routes.RepositoryService
 import routes.routesFor
+import util.ExceptionMessage
+import util.ParamException
 import util.RepositoryUtil.initServer
 import ghidra.framework.Application as GhidraApplication
 
@@ -41,6 +45,10 @@ fun Application.module() {
     install(CallLogging) {
         level = Level.INFO
         filter { call -> call.request.path().startsWith("/api") }
+    }
+
+    install(StatusPages) {
+        exception<Exception> { cause -> call.respond(HttpStatusCode.BadRequest, cause.localizedMessage) }
     }
 
     val binSvc = BinaryService()

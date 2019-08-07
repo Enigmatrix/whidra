@@ -14,6 +14,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.io.core.Input
 import model.Event
+import util.ParamException
+import util.ParamType
 import java.net.URL
 
 class Task<T>(val block: suspend Task<T>.() -> T) {
@@ -71,6 +73,18 @@ class Form {
     val fields = HashMap<String, String>();
     val files = HashMap<String, PartData.FileItem>();
     val blobs = HashMap<String, PartData.BinaryItem>();
+
+    fun field(name: String): String {
+        return fields[name] ?: throw ParamException(name)
+    }
+
+    fun file(name: String): PartData.FileItem {
+        return files[name] ?: throw ParamException(name, ParamType.FILE)
+    }
+
+    fun blob(name: String): PartData.BinaryItem {
+        return blobs[name] ?: throw ParamException(name, ParamType.BINARY)
+    }
 }
 
 suspend fun ApplicationCall.receiveForm(): Form {

@@ -33,6 +33,7 @@ import model.Binary
 import model.Event
 import model.Repository
 import util.RepositoryUtil
+import util.field
 import java.io.File
 import java.net.URL
 
@@ -107,8 +108,8 @@ fun Route.routesFor(svc: RepositoryService) {
 
         post("import") {
             val form = call.receiveForm();
-            val repoName = form.fields["repository"] ?: throw Exception("repository field must not be empty")
-            val binary = form.files["binary"] ?: throw Exception("binary field must not be empty")
+            val repoName = form.field("repository")
+            val binary = form.file("binary")
             // create file
             val file = File("/tmp/${binary.originalFileName}")
             withContext(Dispatchers.IO){
@@ -128,15 +129,14 @@ fun Route.routesFor(svc: RepositoryService) {
         }
 
         post("delete") {
-            val body = call.request.queryParameters
-            val repoName = body["repository"] ?: throw Exception("repository field must not be empty")
+            val repoName = call.field("repository")
             svc.deleteBinaries(repoName)
             call.respond(HttpStatusCode.OK)
         }
 
         post("new") {
             val form = call.receiveForm();
-            val repoName = form.fields["name"] ?: throw Exception("name field must not be empty");
+            val repoName = form.field("name")
             svc.newRepository(repoName)
             call.respond(HttpStatusCode.OK)
         }
