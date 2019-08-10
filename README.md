@@ -164,22 +164,33 @@ You can import binary files manually by selecting the repository you created, ri
 
 Other APIs like :
 
-Importing the binary
+Creating new repository
 
 ```
-curl -X POST "http://localhost:8000/api/repository/import?binary=/path/to/binary&repository=REPO_NAME"
+curl -X POST "localhost:8000/api/repository/new" -F "name=New_Repo_Name"
 ```
 
-Getting Code in XML format
+Importing binary
+
 ```
-curl "http://localhost:8000/api/binary/code?repository=TEST&binary=challenge"
+curl -X POST "localhost:8000/api/repository/import" -F "repository=New_Repo_Name" -F "binary=@/full/path/to/binary"
 ```
 
-Getting functions from binary
+After that you can check with `curl localhost:8000/api/repository`
+
+
+
+#### Getting Functions
+
 ```
-curl "http://localhost:8000/api/binary/code?functions=TEST&binary=challenge"
+curl "localhost:8000/api/binary/functions?binary=filename&repository=New_Repo_Name"
 ```
 
+and to get the code,
+
+```
+curl "localhost:8000/api/binary/code?binary=filename&repository=New_Repo_Name"
+```
 
 ---
 
