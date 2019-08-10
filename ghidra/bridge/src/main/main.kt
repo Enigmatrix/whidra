@@ -10,11 +10,16 @@ import io.ktor.application.install
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.StatusPages
+import io.ktor.http.CacheControl
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.cio.websocket.*
 import io.ktor.jackson.jackson
 import io.ktor.request.path
+import io.ktor.response.cacheControl
 import io.ktor.response.respond
+import io.ktor.response.respondTextWriter
+import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
@@ -22,10 +27,12 @@ import io.ktor.server.netty.Netty
 import io.ktor.sessions.*
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.mapNotNull
 import kotlinx.coroutines.flow.flowViaChannel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import model.Event
 import model.WsIncomingMessage
 import model.WsOutgoingMessage
@@ -78,7 +85,29 @@ fun Application.module() {
             routesFor(binSvc)
             routesFor(repoSvc)
             routesFor(userSvc)
-            webSocket("/") {
+            get("/events"){
+                val session = call.sessions.get<model.Session>() ?: throw Exception("Session not found")
+                call.response.cacheControl(CacheControl.NoCache(null))
+
+                val userTasks = tasks[session.id] ?: throw Exception("Event channel not found for session")
+                call.respondTextWriter(contentType = ContentType.Text.EventStream) {
+                    val wr = this
+                    for (task in userTasks) {
+                        launch {
+                            for (event in task.events) {
+                                withContext(Dispatchers.IO) {
+                                    wr.write("data:")
+                                    wr.write(serializer.writeValueAsString(event))
+                                    wr.write("\n\n")
+                                    wr.flush()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            webSocket("/ws") {
+                send("yo wassup")
                 val session = call.sessions.get<model.Session>()
                 if(session == null) {
                     close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "session not found"))

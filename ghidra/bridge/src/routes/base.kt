@@ -28,6 +28,7 @@ class Task<T>(val block: suspend Task<T>.() -> T) {
     }
 
     suspend fun execute() {
+
         val result = block()
         events.offer(Event.Completed(result))
         events.close()
@@ -43,16 +44,16 @@ class Task<T>(val block: suspend Task<T>.() -> T) {
 
         override fun setMessage(msg: String?) {
             if(msg != null)
-                runBlocking { task.events.send(Event.Message(msg)) }
+                task.events.offer(Event.Message(msg))
         }
 
         override fun setProgress(value: Long) {
-            runBlocking { task.events.send(Event.Progress(value, max)) }
+            task.events.offer(Event.Progress(value, max))
         }
 
         override fun setIndeterminate(indeterminate: Boolean) {
             if(indeterminate)
-                runBlocking { task.events.send(Event.Indeterminate) }
+                task.events.offer(Event.Indeterminate)
         }
     }
 }
