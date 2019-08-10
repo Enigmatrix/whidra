@@ -8,12 +8,15 @@ import ghidra.program.model.listing.Program
 import ghidra.program.model.pcode.Varnode
 import ghidra.util.task.TaskMonitor
 import io.ktor.application.call
+import io.ktor.features.NotFoundException
 import io.ktor.request.queryString
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+import io.ktor.util.hex
+import util.field
 import java.io.InputStream
 
 data class Function(val name: String, val addr: Long, val signature: String)
@@ -28,7 +31,7 @@ class BinaryService : Service() {
             Function(it.name, it.entryPoint.offset, it.signature.prototypeString) }
     }
 
-    fun getCode(repository: String, binary: String): String {
+    fun getCode(repository: String, binary: String, addr: Long): String {
         val project = openProject(repository, true)
         val file = project.rootFolder.getFile(binary)
 
@@ -37,10 +40,10 @@ class BinaryService : Service() {
         val decompiler = DecompilerXML()
         decompiler.openProgram(program)
 
-        val functions = program.listing.getFunctions(true).toList()
-        val main = functions.find { it.name == "main" } ?: functions.first()
+        val functions = program.listing.getFunctions(true)
+        val function = functions.find { it.entryPoint.offset == addr } ?: throw NotFoundException("No function found at 0x${addr.toString(16)}")
 
-        val stream = decompiler.decompileFunctionXML(main, -1, TaskMonitor.DUMMY)?.readAllBytes()
+        val stream = decompiler.decompileFunctionXML(function, -1, TaskMonitor.DUMMY)?.readAllBytes()
             ?: throw Exception("Decompile output empty")
         return String(stream)
     }
@@ -53,15 +56,16 @@ fun Route.routesFor(svc: BinaryService) {
 
         // curl "http://localhost:8000/api/binary/functions?repository=TEST&binary=challenge"
         get("functions") {
-            val repository = call.request.queryParameters["repository"] ?: throw Exception("repository not found")
-            val binary = call.request.queryParameters["binary"] ?: throw Exception("binary not found")
+            val repository = call.field("repository")
+            val binary = call.field("binary")
             call.respond(svc.getFunctions(repository, binary))
         }
 
         get("code") {
-            val repository = call.request.queryParameters["repository"] ?: throw Exception("repository not found")
-            val binary = call.request.queryParameters["binary"] ?: throw Exception("binary not found")
-            call.respond(svc.getCode(repository, binary))
+            val repository = call.field("repository")
+            val binary = call.field("binary")
+            val addr = call.field("addr")
+            call.respond(svc.getCode(repository, binary, addr.toLong()))
         }
 
         get("asm") {

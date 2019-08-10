@@ -26,13 +26,17 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+import io.ktor.sessions.get
+import io.ktor.sessions.sessions
 import io.ktor.util.pipeline.PipelineContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import main.tasks
 import model.Binary
 import model.Event
 import model.Repository
 import util.RepositoryUtil
+import util.field
 import java.io.File
 import java.net.URL
 
@@ -76,25 +80,14 @@ class RepositoryService : Service() {
     }
 }
 
-suspend fun <T> PipelineContext<Unit, ApplicationCall>.taskSSE(task: Task<T>) {
-    call.response.cacheControl(CacheControl.NoCache(null))
+suspend fun <T> PipelineContext<Unit, ApplicationCall>.outputTask(task: Task<T>) {
+    val session = call.sessions.get<model.Session>()
+    if(session != null){
+        tasks.getOrPut(session.id, { Channel() }).send(task)
+    }
     coroutineScope {
-        launch {
-            // TODO this objectmapper may not be the same as the one used by the pipeline. Maybe we should sync them?
-            val mapper = ObjectMapper()
-            call.respondTextWriter(contentType = ContentType.Text.EventStream) {
-                for (event in task.events) {
-                    withContext(Dispatchers.IO) {
-                        write("data:")
-                        write(mapper.writeValueAsString(event))
-                        write("\n\n")
-                        flush()
-                    }
-                }
-            }
-        }
         withContext(Dispatchers.Default){
-            task.execute()
+            call.respond(task.execute())
         }
     }
 }
@@ -107,8 +100,8 @@ fun Route.routesFor(svc: RepositoryService) {
 
         post("import") {
             val form = call.receiveForm();
-            val repoName = form.fields["repository"] ?: throw Exception("repository field must not be empty")
-            val binary = form.files["binary"] ?: throw Exception("binary field must not be empty")
+            val repoName = form.field("repository")
+            val binary = form.file("binary")
             // create file
             val file = File("/tmp/${binary.originalFileName}")
             withContext(Dispatchers.IO){
@@ -121,22 +114,21 @@ fun Route.routesFor(svc: RepositoryService) {
                 }
             }
 
-            taskSSE(svc.importBinary(repoName, file))
+            outputTask(svc.importBinary(repoName, file))
 
             //delete afterwards
             file.delete()
         }
 
         post("delete") {
-            val body = call.request.queryParameters
-            val repoName = body["repository"] ?: throw Exception("repository field must not be empty")
+            val repoName = call.field("repository")
             svc.deleteBinaries(repoName)
             call.respond(HttpStatusCode.OK)
         }
 
         post("new") {
             val form = call.receiveForm();
-            val repoName = form.fields["name"] ?: throw Exception("name field must not be empty");
+            val repoName = form.field("name")
             svc.newRepository(repoName)
             call.respond(HttpStatusCode.OK)
         }

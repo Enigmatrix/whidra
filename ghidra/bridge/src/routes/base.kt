@@ -14,16 +14,21 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.io.core.Input
 import model.Event
+import util.ParamException
+import util.ParamType
+import util.randomSecret
 import java.net.URL
 
 class Task<T>(val block: suspend Task<T>.() -> T) {
     val events = Channel<Event>()
+    val id = randomSecret()
 
     fun monitor(): TaskMonitor {
         return TaskMonitorImpl(this)
     }
 
     suspend fun execute() {
+
         val result = block()
         events.offer(Event.Completed(result))
         events.close()
@@ -39,16 +44,16 @@ class Task<T>(val block: suspend Task<T>.() -> T) {
 
         override fun setMessage(msg: String?) {
             if(msg != null)
-                runBlocking { task.events.send(Event.Message(msg)) }
+                task.events.offer(Event.Message(msg))
         }
 
         override fun setProgress(value: Long) {
-            runBlocking { task.events.send(Event.Progress(value, max)) }
+            task.events.offer(Event.Progress(value, max))
         }
 
         override fun setIndeterminate(indeterminate: Boolean) {
             if(indeterminate)
-                runBlocking { task.events.send(Event.Indeterminate) }
+                task.events.offer(Event.Indeterminate)
         }
     }
 }
@@ -71,6 +76,18 @@ class Form {
     val fields = HashMap<String, String>();
     val files = HashMap<String, PartData.FileItem>();
     val blobs = HashMap<String, PartData.BinaryItem>();
+
+    fun field(name: String): String {
+        return fields[name] ?: throw ParamException(name)
+    }
+
+    fun file(name: String): PartData.FileItem {
+        return files[name] ?: throw ParamException(name, ParamType.FILE)
+    }
+
+    fun blob(name: String): PartData.BinaryItem {
+        return blobs[name] ?: throw ParamException(name, ParamType.BINARY)
+    }
 }
 
 suspend fun ApplicationCall.receiveForm(): Form {
