@@ -1,5 +1,5 @@
 <template>
-    <div class="fixed inset-0 z-50 overflow-auto bg-smoke-light flex" v-if="show" @click.self="show=false">
+    <div class="fixed inset-0 z-40 overflow-auto bg-smoke-light flex" v-if="show" @click.self="show=false">
         <div class="relative bg-gray-800 w-full my-auto mx-4 shadow-md flex-col flex p-4 rounded">
             <div><span class="font-bold text-3xl">{{title}}</span></div>
             <form ref="form" class="flex flex-col pt-4 " @submit.prevent="submit">

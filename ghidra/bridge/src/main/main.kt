@@ -74,7 +74,9 @@ fun Application.module() {
         cookie<model.Session>("SESSION", directorySessionStorage(File("/var/sessions"), cached = true))
     }
 
-    install(WebSockets)
+    install(WebSockets) {
+
+    }
 
     val binSvc = BinaryService()
     val repoSvc = RepositoryService()
@@ -106,11 +108,11 @@ fun Application.module() {
                     }
                 }
             }
-            webSocket("/ws") {
-                send("yo wassup")
+            webSocket("event-stream") {
                 val session = call.sessions.get<model.Session>()
                 if(session == null) {
-                    close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "session not found"))
+                    println("session is null?!")
+                    close(CloseReason(CloseReason.Codes.NORMAL, "session not found"))
                     return@webSocket
                 }
 
@@ -121,13 +123,10 @@ fun Application.module() {
                         }
                     }
                 }
-
-                launch {
-                    val userTasks = tasks[session.id] ?: throw Exception("Event channel not found for session")
-                    for(task in userTasks) {
-                        for(event in task.events){
-                            send(serializer.writeValueAsString(WsOutgoingMessage.Progress(task.id, event)))
-                        }
+                val userTasks = tasks.getOrPut(session.id, { Channel() })
+                for(task in userTasks) {
+                    for(event in task.events){
+                        send(serializer.writeValueAsString(WsOutgoingMessage.Progress(task.id, event)))
                     }
                 }
             }
