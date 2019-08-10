@@ -16,10 +16,12 @@ import kotlinx.io.core.Input
 import model.Event
 import util.ParamException
 import util.ParamType
+import util.randomSecret
 import java.net.URL
 
 class Task<T>(val block: suspend Task<T>.() -> T) {
     val events = Channel<Event>()
+    val id = randomSecret()
 
     fun monitor(): TaskMonitor {
         return TaskMonitorImpl(this)
