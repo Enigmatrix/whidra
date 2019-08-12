@@ -1,12 +1,18 @@
 <template>
-    <div v-show="active">
+    <div v-show="isActive">
         <slot/>
     </div>
 </template>
 <script lang="ts">
     import { Vue, Component, Prop } from 'vue-property-decorator';
 
-    @Component({})
+    @Component({
+        methods: {
+            setActive(active: boolean) {
+                (<any>this).isActive = active;
+            }
+        }
+    })
     export default class Tab extends Vue {
 
         @Prop({ required: true })
@@ -17,5 +23,7 @@
 
         @Prop({ default: false })
         public active!: boolean;
+
+        private isActive = this.active;  
     }
 </script>

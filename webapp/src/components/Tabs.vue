@@ -1,7 +1,7 @@
 <template>
     <div>
         <nav class="h-16 bg-gray-900 flex text-lg">
-            <div v-for="tab in tabs" @click="setActive(tab)" class="flex-1 text-center flex" :class="{'bg-gray-800': activeTab && tab.title === activeTab.title}">
+            <div v-for="tab in tabs" @click="setActive(tab)" class="flex-1 text-center flex" :class="{'bg-gray-800': tab.title === activeTab.title}">
                 <div class="m-auto flex items-center">
                     <svg class="h-6 w-6 mr-2 fill-current">
                         <path :d="tab.icon"></path>
@@ -41,7 +41,7 @@
                 const tabProps = {
                     title: props.title,
                     icon: props.icon,
-                    setActive: (t: boolean) => tab.componentInstance!.$props!.active = t
+                    setActive: (t: boolean) => tab.componentInstance!.setActive(t)
                 };
                 if (props.active) {
                     this.activeTab = tabProps;
