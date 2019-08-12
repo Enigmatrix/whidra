@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="bg-gray-800">
         <nav class="h-16 bg-gray-900 flex text-lg">
             <div v-for="tab in tabs" @click="setActive(tab)" class="flex-1 text-center flex" :class="{'bg-gray-800': tab.title === activeTab.title}">
                 <div class="m-auto flex items-center">
