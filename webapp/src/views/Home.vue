@@ -15,20 +15,19 @@
 
 <script lang="ts">
 import {Component, Vue} from 'vue-property-decorator';
-import axios from "@/axios";
+import axios from '@/axios';
 @Component({})
 export default class Home extends Vue {
     public $refs!: {
-        loginForm: HTMLFormElement
+        loginForm: HTMLFormElement,
     };
 
-    async login(){
+    public async login() {
         const data = new FormData(this.$refs.loginForm);
-        const resp = await axios.post("/user/login", data);
-        if(resp.status === 200) {
-            this.$router.push("/projects");
-        }
-        else {
+        const resp = await axios.post('/user/login', data);
+        if (resp.status === 200) {
+            this.$router.push('/projects');
+        } else {
             // display error
         }
     }

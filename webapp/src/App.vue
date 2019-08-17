@@ -9,7 +9,11 @@
   font-family 'Blinker', Helvetica, Arial, sans-serif
 
 .font-code
-  font-family 'Fira Code', Inconsolata
+  font-family 'Iosevka Nerd Font', Inconsolata
 
 @import url('https://fonts.googleapis.com/css?family=Blinker|Fira+Code&display=swap');
+
+@font-face
+  font-family "Iosevka Nerd Font"
+  src: url('/Iosevka Nerd Font Complete.ttf');
 </style>

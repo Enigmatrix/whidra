@@ -7,10 +7,10 @@ export interface Binary {
     name: string;
 }
 
-export interface Function {
+export interface Func {
     name: string;
-    address: number;
-    prototype: string;
+    addr: number;
+    signature: string;
 }
 
 export type WsMessage = ProgressWsMessage;

@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import {Component, Vue} from 'vue-property-decorator';
-import {Repository, WsMessage} from "@/models/model";
+import {Repository, WsMessage} from '@/models';
 import axios from '@/axios';
 import Modal from '@/components/Modal.vue';
 import NotificationArea from '@/components/NotificationArea.vue';
@@ -85,7 +85,7 @@ export default class Projects extends Vue {
         const binary = data.get('binary')! as File;
         const project = this.projects.find((x) => x.name === repository);
         if (project) {
-            project.binaries.push({name: binary.name})
+            project.binaries.push({name: binary.name});
         }
     }
 }

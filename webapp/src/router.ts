@@ -14,7 +14,7 @@ export default new Router({
       path: '/:project/:binary',
       name: 'main',
       component: Main,
-      props: true
+      props: true,
     },
     {
       path: '/projects',

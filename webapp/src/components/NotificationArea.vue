@@ -17,24 +17,23 @@
 </template>
 
 <script lang="ts">
-    import {Vue, Component} from "vue-property-decorator";
-import {WsMessage} from '../models/model';
+import {Vue, Component} from 'vue-property-decorator';
+import {WsMessage} from '../models';
 
 class TaskNotification {
     public maxProgress = 0;
     public currentProgress = 0;
-    public message = "";
+    public message = '';
 
     get taskWidthPercentage() {
-        let percentage = this.currentProgress/this.maxProgress * 100.0;
+        let percentage = this.currentProgress / this.maxProgress * 100.0;
         if (isNaN(percentage) || percentage < 0) {
             percentage = 0;
-        }
-        else if(percentage > 100){
+        } else if (percentage > 100) {
             percentage = 100;
         }
         return {
-            'width': `${percentage}%`
+            width: `${percentage}%`,
         };
     }
 }
@@ -47,14 +46,14 @@ export default class NotificationArea extends Vue {
     public async mounted() {
         const ws = new WebSocket('ws://localhost:8000/api/event-stream');
         ws.onmessage = (ev) => {
-            console.log("msg", ev.data);
+            console.log('msg', ev.data);
             const wsMsg = JSON.parse(ev.data) as WsMessage;
             switch (wsMsg.kind) {
                 case 'progress':
-                    let notif = this.notifications[wsMsg.taskId]
+                    let notif = this.notifications[wsMsg.taskId];
                     if (notif === undefined) {
                         Vue.set(this.notifications, wsMsg.taskId, new TaskNotification());
-                        notif = this.notifications[wsMsg.taskId]
+                        notif = this.notifications[wsMsg.taskId];
                     }
                     switch (wsMsg.event.kind) {
                         case 'completed':
@@ -74,14 +73,14 @@ export default class NotificationArea extends Vue {
             }
         };
         ws.onclose = (ev) => {
-            console.log("close", ev);
+            console.log('close', ev);
         };
         ws.onerror = (ev) => {
-            console.log("error", ev);
+            console.log('error', ev);
         };
         ws.onopen = (ev) => {
-            console.log("open", ev);
-        }
+            console.log('open', ev);
+        };
     }
 }
 </script>
