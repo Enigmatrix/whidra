@@ -7,4 +7,4 @@ server/svrAdmin -add daniellimws
 server/svrAdmin -add ubuntu-dev
 server/svrAdmin -add cexplr
 server/svrAdmin -add ghidra
-server/ghidraSvr console
+{ (cd bridge && ./gradlew --no-daemon run) & server/ghidraSvr console; }
