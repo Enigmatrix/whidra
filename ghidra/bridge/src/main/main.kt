@@ -54,7 +54,7 @@ var tasks = ConcurrentHashMap<String, Channel<Task<*>>>()
 
 fun main() {
     init()
-    embeddedServer(Netty, 8000,
+    embeddedServer(Netty, 3000,
         module = Application::module)
         .start(wait = true)
 }

@@ -4,6 +4,12 @@ import ghidra.app.decompiler.ClangNode
 import ghidra.app.decompiler.DecompInterface
 import ghidra.app.decompiler.DecompileProcess
 import ghidra.app.decompiler.LimitedByteBuffer
+import ghidra.app.util.PseudoDisassembler
+import ghidra.app.util.PseudoFlowProcessor
+import ghidra.app.util.PseudoInstruction
+import ghidra.program.model.address.Address
+import ghidra.program.model.listing.CodeUnitFormat
+import ghidra.program.model.listing.CodeUnitFormatOptions
 import ghidra.program.model.listing.Program
 import ghidra.program.model.pcode.Varnode
 import ghidra.util.task.TaskMonitor
@@ -16,19 +22,19 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.util.hex
+import model.Asm
 import util.field
 import java.io.InputStream
 
-data class Function(val name: String, val addr: Long, val signature: String)
 
 class BinaryService : Service() {
-    fun getFunctions(repository: String, binary: String): List<Function> {
+    fun getFunctions(repository: String, binary: String): List<model.Function> {
         val project = openProject(repository, true)
         val file = project.rootFolder.getFile(binary)
         val program = file.getDomainObject(this, true, true, TaskMonitor.DUMMY) as Program
 
         return program.listing.getFunctions(true).map {
-            Function(it.name, it.entryPoint.offset, it.signature.prototypeString) }
+            model.Function(it.name, it.entryPoint.offset, it.signature.prototypeString) }
     }
 
     fun getCode(repository: String, binary: String, addr: Long): String {
@@ -46,6 +52,35 @@ class BinaryService : Service() {
         val stream = decompiler.decompileFunctionXML(function, -1, TaskMonitor.DUMMY)?.readAllBytes()
             ?: throw Exception("Decompile output empty")
         return String(stream)
+    }
+
+    fun getAsm(repository: String, binary: String, addr: Long, length: Long): List<Asm> {
+        val project = openProject(repository, true)
+        val file = project.rootFolder.getFile(binary)
+
+        val program = file.getDomainObject(this, true, true, TaskMonitor.DUMMY) as Program
+
+        val disas = PseudoDisassembler(program)
+
+        val gAddr = program.addressFactory.defaultAddressSpace.getAddress(addr)
+        val asm = mutableListOf<Asm>()
+
+        val flows = disas.followSubFlows(gAddr, length.toInt(), object : PseudoFlowProcessor {
+            override fun followFlows(instr: PseudoInstruction?): Boolean {
+                return true
+            }
+
+            override fun process(instr: PseudoInstruction?): Boolean {
+                if (instr == null) return false;
+                val formatter = CodeUnitFormat(
+                    CodeUnitFormatOptions.ShowBlockName.NEVER,
+                    CodeUnitFormatOptions.ShowNamespace.NEVER)
+                asm.add(Asm(formatter.getRepresentationString(instr), instr.address.offset))
+                return true;
+            }
+        })
+
+        return asm
     }
 
 
@@ -69,7 +104,11 @@ fun Route.routesFor(svc: BinaryService) {
         }
 
         get("asm") {
-
+            val repository = call.field("repository")
+            val binary = call.field("binary")
+            val addr = call.field("addr")
+            val length = call.field("length")
+            call.respond(svc.getAsm(repository, binary, addr.toLong(), length.toLong()))
         }
 
         post("rename/var") {
