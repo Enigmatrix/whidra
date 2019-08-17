@@ -44,7 +44,8 @@ export default class NotificationArea extends Vue {
     private notifications: { [id: string]: TaskNotification } = {};
 
     public async mounted() {
-        const ws = new WebSocket('ws://localhost:8000/api/event-stream');
+        const loc = window.location;
+        const ws = new WebSocket( (loc.protocol === 'https:' ? 'wss' 'ws') + `://${loc.host}/api/event-stream`);
         ws.onmessage = (ev) => {
             console.log('msg', ev.data);
             const wsMsg = JSON.parse(ev.data) as WsMessage;
