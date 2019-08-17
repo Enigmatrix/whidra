@@ -29,6 +29,7 @@ import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.mapNotNull
 import kotlinx.coroutines.flow.flowViaChannel
 import kotlinx.coroutines.launch
@@ -84,50 +85,42 @@ fun Application.module() {
 
     routing {
         route("api") {
+
             routesFor(binSvc)
             routesFor(repoSvc)
             routesFor(userSvc)
-            get("/events"){
-                val session = call.sessions.get<model.Session>() ?: throw Exception("Session not found")
-                call.response.cacheControl(CacheControl.NoCache(null))
 
-                val userTasks = tasks[session.id] ?: throw Exception("Event channel not found for session")
-                call.respondTextWriter(contentType = ContentType.Text.EventStream) {
-                    val wr = this
-                    for (task in userTasks) {
-                        launch {
-                            for (event in task.events) {
-                                withContext(Dispatchers.IO) {
-                                    wr.write("data:")
-                                    wr.write(serializer.writeValueAsString(event))
-                                    wr.write("\n\n")
-                                    wr.flush()
-                                }
+            webSocket("event-stream") {
+
+                try {
+                    val session = call.sessions.get<model.Session>()
+                    if(session == null) {
+                        println("session is null?!")
+                        close(CloseReason(CloseReason.Codes.NORMAL, "session not found"))
+                        return@webSocket
+                    }
+
+                    launch {
+                        for (frame in incoming.mapNotNull { it as? Frame.Text }) {
+                            when(val msg = serializer.readValue<WsIncomingMessage>(frame.readBytes())){
+                                is WsIncomingMessage.Cancel -> println("cancelling ${msg.taskId}")
                             }
                         }
                     }
-                }
-            }
-            webSocket("event-stream") {
-                val session = call.sessions.get<model.Session>()
-                if(session == null) {
-                    println("session is null?!")
-                    close(CloseReason(CloseReason.Codes.NORMAL, "session not found"))
-                    return@webSocket
-                }
 
-                launch {
-                    for (frame in incoming.mapNotNull { it as? Frame.Text }) {
-                        when(val msg = serializer.readValue<WsIncomingMessage>(frame.readBytes())){
-                            is WsIncomingMessage.Cancel -> println("cancelling ${msg.taskId}")
+                    val userTasks = tasks.getOrPut(session.id, { Channel() })
+                    for(task in userTasks) {
+                        for(event in task.events){
+                            send(serializer.writeValueAsString(WsOutgoingMessage.Progress(task.id, event)))
                         }
                     }
                 }
-                val userTasks = tasks.getOrPut(session.id, { Channel() })
-                for(task in userTasks) {
-                    for(event in task.events){
-                        send(serializer.writeValueAsString(WsOutgoingMessage.Progress(task.id, event)))
-                    }
+                catch (e: ClosedReceiveChannelException) {
+                    println("websocket closed :)")
+                }
+                catch (e: Throwable) {
+                    println("exception thrown:")
+                    throw e
                 }
             }
         }

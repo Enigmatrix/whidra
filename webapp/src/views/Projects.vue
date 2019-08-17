@@ -36,17 +36,7 @@
             <input type="file" name="binary" class="">
             <button type="submit" class="bg-blue-500 rounded p-2 mt-2 font-bold">SUBMIT</button>
         </Modal>
-        <div class="z-50 bottom-0 right-0 left-0 fixed text-xl text-gray-500 flex flex-col bg-gray-900 m-2 p-2">
-            <div class="flex"><span>{{taskMsg}}</span> <div class="flex-1"></div>
-                <span>({{taskCurrent}}/{{taskMax}})</span>
-                <button class="ml-2">
-                    <svg class="h-8 w-8 fill-current"  viewBox="0 0 24 24">
-                        <path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z"></path>
-                    </svg>
-                </button>
-            </div>
-            <div class="border-b-2 border-green-500" :style="taskWidthPercentage"></div>
-        </div>
+        <NotificationArea/>
     </div>
 </template>
 
@@ -55,9 +45,10 @@ import {Component, Vue} from 'vue-property-decorator';
 import {Repository, WsMessage} from "@/models/model";
 import axios from '@/axios';
 import Modal from '@/components/Modal.vue';
+import NotificationArea from '@/components/NotificationArea.vue';
 
 @Component({
-    components: { Modal },
+    components: {NotificationArea, Modal },
 })
 export default class Projects extends Vue {
 
@@ -69,53 +60,8 @@ export default class Projects extends Vue {
     private projects: Repository[] = [];
     private selectedProjName: string|null = null;
 
-    private taskMsg = "";
-    private taskCurrent = 0;
-    private taskMax = 0;
-
-    get taskWidthPercentage() {
-        const o = {
-            'width': Math.min(this.taskCurrent/this.taskMax*100, 100)+'%'
-        };
-        console.dir(o);
-        return o;
-    }
-
     public async mounted() {
         this.projects = await axios.get<Repository[]>('/repository').then((x) => x.data);
-
-        const ws = new WebSocket('ws://localhost:8000/api/event-stream');
-        ws.onmessage = (ev) => {
-            console.log("msg", ev.data);
-            const wsMsg = JSON.parse(ev.data) as WsMessage;
-            switch (wsMsg.kind) {
-                case 'progress':
-                    switch (wsMsg.event.kind) {
-                        case 'completed':
-                            this.taskMsg = 'COMPLETED!';
-                            break;
-                        case 'indeterminate':
-                            this.taskMsg = '...';
-                            break;
-                        case 'progress':
-                            this.taskCurrent = wsMsg.event.current;
-                            this.taskMax = wsMsg.event.max;
-                            break;
-                        case 'message':
-                            this.taskMsg = wsMsg.event.msg;
-                            break;
-                    }
-            }
-        };
-        ws.onclose = (ev) => {
-            console.log("close", ev);
-        };
-        ws.onerror = (ev) => {
-            console.log("error", ev);
-        };
-        ws.onopen = (ev) => {
-            console.log("open", ev);
-        }
     }
 
     public newProjectOpen() {
@@ -135,7 +81,12 @@ export default class Projects extends Vue {
 
     public async importBinarySubmit(data: FormData) {
         await axios.post('/repository/import', data);
-
+        const repository = data.get('repository')! as string;
+        const binary = data.get('binary')! as File;
+        const project = this.projects.find((x) => x.name === repository);
+        if (project) {
+            project.binaries.push({name: binary.name})
+        }
     }
 }
 </script>
