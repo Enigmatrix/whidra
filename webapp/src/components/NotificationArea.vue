@@ -45,7 +45,7 @@ export default class NotificationArea extends Vue {
 
     public async mounted() {
         const loc = window.location;
-        const ws = new WebSocket( (loc.protocol === 'https:' ? 'wss' 'ws') + `://${loc.host}/api/event-stream`);
+        const ws = new WebSocket( (loc.protocol === 'https:' ? 'wss' : 'ws') + `://${loc.host}/api/event-stream`);
         ws.onmessage = (ev) => {
             console.log('msg', ev.data);
             const wsMsg = JSON.parse(ev.data) as WsMessage;
