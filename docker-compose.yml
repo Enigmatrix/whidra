@@ -3,7 +3,7 @@ version: '3'
 services:
   ghidra:
     build:
-      context: ./ghidra
+      context: .
     container_name: ghidra_svr
     network_mode: host
     hostname: whidra.hats.sg

@@ -1,5 +1,4 @@
 <template>
-
     <div class="min-h-screen">
         <Slide>
             <div class="font-extrabold font-xl m-4">FUNCTIONS</div>
@@ -97,7 +96,7 @@ export default class Main extends Vue {
 }
 </script>
 <style>
-    .bm-burger-button {
+    #app .bm-burger-button {
         position: absolute;
         width: 1.5rem;
         height: 1.5rem;
@@ -106,20 +105,20 @@ export default class Main extends Vue {
         cursor: pointer;
     }
 
-    .bm-burger-bars {
+    #app .bm-burger-bars {
         background-color: white;
     }
 
-    .bm-menu {
+    #app .bm-menu {
         padding: 0;
     }
 
-    .bm-item-list {
+    #app .bm-item-list {
         margin: 0;
     }
-    .bm-item-list > * {
+
+    #app .bm-item-list > * {
         margin: 0;
-        padding: 0;
     }
 
     :not(pre) > code[class*="language-"], pre[class*="language-"] {

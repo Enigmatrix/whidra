@@ -1,3 +1,13 @@
+# build frontend
+FROM node:11.3-slim as frontend-builder
+COPY ./webapp/package.json /app/
+COPY ./webapp/yarn.lock /app/
+WORKDIR /app
+RUN yarn install
+COPY ./webapp /app/
+RUN yarn build
+
+# main docker images
 FROM openjdk:11-slim
 ARG GHIDRA_VERSION=9.0_PUBLIC_20190228
 ARG GHIDRA_SHA256=3b65d29024b9decdbb1148b12fe87bcb7f3a6a56ff38475f5dc9dd1cfc7fd6b2
@@ -22,12 +32,11 @@ RUN apt-get update && apt-get install -y unzip wget gettext-base patch sudo ed l
     cd .. && chown -R ghidra: ghidra* 
 
 VOLUME /srv/repositories
-VOLUME /var/sessions
 
 WORKDIR /opt/ghidra
 ENV ghidra_home=/opt/ghidra
 
-COPY --chown=ghidra:ghidra server /opt/ghidra/server
+COPY --chown=ghidra:ghidra ./ghidra/server /opt/ghidra/server
 RUN ./support/analyzeHeadless . empty -postScript ./server/BuildSingleGhidraJar.java /opt/ghidra/ghidra.jar -noanalysis -deleteProject && chown ghidra ghidra.jar
 
 RUN server/svrInstall
@@ -37,8 +46,12 @@ RUN echo "0.0.0.0  ${HOST}" >> /etc/hosts && \
     cp /etc/hosts /opt/ghidra/server
 
 EXPOSE 13100 13101 13102
+RUN mkdir /var/sessions && chown ghidra /var/sessions
 USER ghidra
+# inherit perms
+VOLUME /var/sessions
 
-COPY --chown=ghidra:ghidra bridge /opt/ghidra/bridge
+COPY --chown=ghidra:ghidra ./ghidra/bridge /opt/ghidra/bridge
+COPY --chown=ghidra:ghidra --from=frontend-builder /app/dist /opt/ghidra/bridge/frontend
 
 CMD server/start.sh

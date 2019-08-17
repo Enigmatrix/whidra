@@ -14,6 +14,10 @@ import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.cio.websocket.*
+import io.ktor.http.content.default
+import io.ktor.http.content.files
+import io.ktor.http.content.static
+import io.ktor.http.content.staticRootFolder
 import io.ktor.jackson.jackson
 import io.ktor.request.path
 import io.ktor.response.cacheControl
@@ -27,6 +31,7 @@ import io.ktor.server.netty.Netty
 import io.ktor.sessions.*
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
+import it.lamba.ktor.features.SinglePageApplication
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
@@ -79,6 +84,12 @@ fun Application.module() {
 
     }
 
+    install(SinglePageApplication) {
+        useFiles = true
+        folderPath = "frontend"
+        defaultPage = "index.html"
+    }
+
     val binSvc = BinaryService()
     val repoSvc = RepositoryService()
     val userSvc = UserService()
@@ -123,6 +134,13 @@ fun Application.module() {
                     throw e
                 }
             }
+
+        }
+        static {
+            staticRootFolder = File("./frontend")
+
+            files(".")
+            default("index.html")
         }
     }
 }
