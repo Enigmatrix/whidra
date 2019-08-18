@@ -54,7 +54,7 @@ var tasks = ConcurrentHashMap<String, Channel<Task<*>>>()
 
 fun main() {
     init()
-    embeddedServer(Netty, 3000,
+    embeddedServer(Netty, 8000,
         module = Application::module)
         .start(wait = true)
 }
@@ -136,12 +136,12 @@ fun Application.module() {
             }
 
         }
-        static {
+        /*static {
             staticRootFolder = File("./frontend")
 
             files(".")
             default("index.html")
-        }
+        }*/
     }
 }
 

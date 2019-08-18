@@ -6,18 +6,3 @@ services:
       args:
         HOST: 'localhost'
     hostname: localhost
-    volumes:
-      - './ghidra/scripts:/opt/ghidra/custom_scripts'
-  app:
-    build:
-      dockerfile: Dockerfile-dev
-    volumes:
-      - './app:/app'
-      - /app/node_modules
-      - /app/dist
-    environment:
-      - NODE_ENV=dev
-    command: bash -c "yarn install --force --frozen-lockfile && (yarn express | (sleep 30 && yarn serve --port 8081))"
-    ports:
-      - "3000:3000"
-      - "8081:8081"

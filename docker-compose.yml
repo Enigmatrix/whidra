@@ -4,31 +4,11 @@ services:
   ghidra:
     build:
       context: .
-    container_name: ghidra_svr
-    network_mode: host
     hostname: whidra.hats.sg
     environment:
       - GHIDRA_PASS=changeme
-    volumes:
-      - "uploads:/uploads"
     ports:
       - "13100:13100"
       - "13101:13101"
       - "13102:13102"
-  app:
-    build:
-      context: ./webapp
-    container_name: whidra_app
-    networks:
-      - main
-    volumes:
-      - "uploads:/uploads"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    depends_on:
-      - ghidra
-
-volumes:
-  uploads:
-
-networks:
-  main:
+      - "8000:8000"
