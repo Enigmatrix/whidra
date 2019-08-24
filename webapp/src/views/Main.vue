@@ -97,7 +97,7 @@ export default class Main extends Vue {
 </script>
 <style>
     #app .bm-burger-button {
-        position: absolute;
+        position: fixed;
         width: 1.125rem;
         height: 1.125rem;
         left: 0.750rem;
@@ -124,7 +124,7 @@ export default class Main extends Vue {
 
     :not(pre) > code[class*="language-"], pre[class*="language-"] {
         background: transparent;
-        font-family: "Iosevka Nerd Font"
+        font-family: "Iosevka Nerd Font", monospace
     }
 </style>
 

@@ -1,6 +1,7 @@
 <template>
   <div id="app" class="min-h-screen bg-gray-800 text-gray-300">
     <router-view/>
+    <NotificationArea/>
   </div>
 </template>
 <style lang="stylus">
@@ -17,3 +18,10 @@
   font-family "Iosevka Nerd Font"
   src: url('/Iosevka Nerd Font Complete.ttf');
 </style>
+<script lang="ts">
+import NotificationArea from '@/components/NotificationArea.vue';
+
+export default {
+  components: { NotificationArea },
+}
+</script>

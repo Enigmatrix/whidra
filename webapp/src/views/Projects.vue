@@ -36,7 +36,6 @@
             <input type="file" name="binary" class="">
             <button type="submit" class="bg-blue-500 rounded p-2 mt-2 font-bold">SUBMIT</button>
         </Modal>
-        <NotificationArea/>
     </div>
 </template>
 
@@ -45,10 +44,9 @@ import {Component, Vue} from 'vue-property-decorator';
 import {Repository, WsMessage} from '@/models';
 import axios from '@/axios';
 import Modal from '@/components/Modal.vue';
-import NotificationArea from '@/components/NotificationArea.vue';
 
 @Component({
-    components: {NotificationArea, Modal },
+    components: { Modal },
 })
 export default class Projects extends Vue {
 

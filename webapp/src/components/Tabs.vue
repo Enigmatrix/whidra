@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-gray-800 min-h-screen">
+    <div class="bg-gray-800 min-h-screen pt-10">
         <nav class="h-10 bg-gray-900 flex text-lg fixed top-0 right-0 left-0">
             <div class="w-10">
             </div>
