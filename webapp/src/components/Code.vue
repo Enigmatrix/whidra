@@ -1,5 +1,5 @@
 <template>
-    <code class=" rounded shadow m-2 overflow-auto whitespace-pre-wrap block" id="main-code">
+    <code class="rounded shadow m-2 overflow-auto whitespace-pre-wrap block" id="main-code">
         <SyntaxNode :syntax="syntaxRoot"/>
     </code>
 </template>

@@ -100,7 +100,8 @@ fun Route.routesFor(svc: BinaryService) {
             val repository = call.field("repository")
             val binary = call.field("binary")
             val addr = call.field("addr")
-            call.respond(svc.getCode(repository, binary, addr.toLong()))
+            call.respond("what code?")
+            //call.respond(svc.getCode(repository, binary, addr.toLong()))
         }
 
         get("asm") {

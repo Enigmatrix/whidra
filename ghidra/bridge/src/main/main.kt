@@ -24,8 +24,7 @@ import io.ktor.response.cacheControl
 import io.ktor.response.respond
 import io.ktor.response.respondTextWriter
 import io.ktor.routing.get
-import io.ktor.routing.route
-import io.ktor.routing.routing
+import io.ktor.routing.route import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.sessions.*
@@ -54,7 +53,7 @@ var tasks = ConcurrentHashMap<String, Channel<Task<*>>>()
 
 fun main() {
     init()
-    embeddedServer(Netty, 8000,
+    embeddedServer(Netty, 8000, watchPaths = listOf("bridge", "/opt/ghidra/bridge"),
         module = Application::module)
         .start(wait = true)
 }
@@ -84,11 +83,14 @@ fun Application.module() {
 
     }
 
-    install(SinglePageApplication) {
-        useFiles = true
-        folderPath = "frontend"
-        defaultPage = "index.html"
+    if(System.getenv("DEV") == null) {
+        install(SinglePageApplication) {
+            useFiles = true
+            folderPath = "frontend"
+            defaultPage = "index.html"
+        }
     }
+
 
     val binSvc = BinaryService()
     val repoSvc = RepositoryService()

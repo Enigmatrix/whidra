@@ -1,0 +1,5 @@
+FROM node:11.3-slim
+EXPOSE 3000
+WORKDIR /app
+RUN yarn install --force
+CMD yarn express && yarn serve
