@@ -1,24 +1,37 @@
 package util
 
+import ch.qos.logback.core.net.server.Client
 import ghidra.framework.client.ClientUtil
 import ghidra.framework.client.PasswordClientAuthenticator
 import ghidra.framework.client.RepositoryAdapter
 import ghidra.framework.client.RepositoryServerAdapter
 import ghidra.framework.model.ProjectData
 import ghidra.framework.protocol.ghidra.GhidraURLConnection
-import ghidra.server.Repository
+import ghidra.util.HashUtilities
+import java.io.File
 import java.net.URL
 
 object RepositoryUtil {
     private lateinit var server: RepositoryServerAdapter
     private const val host = "localhost"
     private const val port = 13100
-    private const val password = "changeme"
+    private const val user = "ghidra"
+    private const val defaultPassword = "changeme"
 
     fun initServer() {
-        // no need to put username since it just defaults to computer username
-        ClientUtil.setClientAuthenticator(PasswordClientAuthenticator("", password))
-        //TODO reset password
+        val passFile = File("GHIDRA_USER_PASSWORD")
+
+        if(!passFile.exists()){
+            val newPass = randomSecret()
+            passFile.createNewFile()
+            passFile.writeText(newPass)
+            ClientUtil.setClientAuthenticator(PasswordClientAuthenticator(user, defaultPassword))
+            val tempServer = ClientUtil.getRepositoryServer(host, port, true)
+            tempServer.setPassword(HashUtilities.getSaltedHash(HashUtilities.SHA256_ALGORITHM, newPass.toCharArray()))
+            tempServer.disconnect()
+        }
+        val pass = passFile.readText()
+        ClientUtil.setClientAuthenticator(PasswordClientAuthenticator(user, pass))
         server = ClientUtil.getRepositoryServer(host, port, true)
     }
 
