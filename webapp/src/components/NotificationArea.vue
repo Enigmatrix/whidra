@@ -46,7 +46,7 @@ export default class NotificationArea extends Vue {
     public async mounted() {
         const loc = window.location;
         const ws = new WebSocket( (loc.protocol === 'https:' ? 'wss' : 'ws') + `://${loc.host}/api/event-stream`);
-        ws.onmessage = (ev) => {
+        ws.onmessage = async (ev) => {
             console.log('msg', ev.data);
             const wsMsg = JSON.parse(ev.data) as WsMessage;
             switch (wsMsg.kind) {
@@ -58,17 +58,20 @@ export default class NotificationArea extends Vue {
                     }
                     switch (wsMsg.event.kind) {
                         case 'completed':
+                            await this.$nextTick();
                             Vue.set(this.notifications, wsMsg.taskId, undefined);
                             break;
                         case 'indeterminate':
-                            notif.message = '...';
+                            notif.message = '???';
                             break;
                         case 'progress':
                             notif.currentProgress = wsMsg.event.current;
                             notif.maxProgress = wsMsg.event.max;
                             break;
                         case 'message':
-                            notif.message = wsMsg.event.msg;
+                            if(notif) {
+                                notif.message = wsMsg.event.msg;
+                            }
                             break;
                     }
             }
