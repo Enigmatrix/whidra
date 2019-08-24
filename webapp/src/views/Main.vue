@@ -98,11 +98,12 @@ export default class Main extends Vue {
 <style>
     #app .bm-burger-button {
         position: absolute;
-        width: 1.5rem;
-        height: 1.5rem;
-        left: 0.875rem;
-        top: 0.875rem;
+        width: 1.125rem;
+        height: 1.125rem;
+        left: 0.750rem;
+        top: 0.750rem;
         cursor: pointer;
+        z-index: 10;
     }
 
     #app .bm-burger-bars {

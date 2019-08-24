@@ -1,14 +1,14 @@
 <template>
     <div class="bg-gray-800 min-h-screen">
-        <nav class="h-12 bg-gray-900 flex text-lg">
-            <div class="w-12">
+        <nav class="h-10 bg-gray-900 flex text-lg fixed top-0 right-0 left-0">
+            <div class="w-10">
             </div>
             <div v-for="tab in tabs" @click="setActive(tab)" class="flex-1 text-center flex" :class="{'bg-gray-800': tab.title === activeTab.title}">
                 <div class="m-auto flex items-center">
-                    <svg class="h-6 w-6 mr-1 fill-current">
+                    <svg class="h-4 w-4 mr-1 fill-current" viewBox="0 0 24 24">
                         <path :d="tab.icon"></path>
                     </svg>
-                    <span>{{tab.title}}</span>
+                    <span class="text-sm">{{tab.title}}</span>
                 </div>
             </div>
         </nav>
