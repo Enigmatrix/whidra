@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import {Vue, Component} from 'vue-property-decorator';
+    import {Vue, Component, Watch} from "vue-property-decorator";
 import {WsMessage} from '../models';
 
 class TaskNotification {
@@ -43,7 +43,9 @@ export default class NotificationArea extends Vue {
 
     private notifications: { [id: string]: TaskNotification } = {};
 
+    
     public async mounted() {
+
         const loc = window.location;
         const ws = new WebSocket( (loc.protocol === 'https:' ? 'wss' : 'ws') + `://${loc.host}/api/event-stream`);
         ws.onmessage = async (ev) => {
