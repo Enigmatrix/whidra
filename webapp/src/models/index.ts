@@ -13,6 +13,11 @@ export interface Func {
     signature: string;
 }
 
+export interface Asm {
+    line: string;
+    addr: number;
+}
+
 export type WsMessage = ProgressWsMessage;
 
 export interface ProgressWsMessage {

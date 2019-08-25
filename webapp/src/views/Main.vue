@@ -19,12 +19,13 @@
                 <Code :syntaxRoot="currentFunctionSyntaxTree" v-if="currentFunctionSyntaxTree"></Code>
             </Tab>
             <Tab title="ASM" icon="M13,3V9H21V3M13,21H21V11H13M3,21H11V15H3M3,13H11V3H3V13Z">
-
+                <Assembly length="50"></Assembly>
             </Tab>
             <Tab title="TERM" icon="M20,19V7H4V19H20M20,3A2,2 0 0,1 22,5V19A2,2 0 0,1 20,21H4A2,2 0 0,1 2,19V5C2,3.89 2.9,3 4,3H20M13,17V15H18V17H13M9.58,13L5.57,9H8.4L11.7,12.3C12.09,12.69 12.09,13.33 11.7,13.72L8.42,17H5.59L9.58,13Z">
 
             </Tab>
         </Tabs>
+        <Info></Info>
     </div>
 
 
@@ -45,11 +46,13 @@ import 'prismjs/components/prism-cpp';
 import 'prismjs/themes/prism-okaidia.css';
 import Code from '@/components/Code.vue';
 import {FuncSelection} from '@/store/main';
+import Info from '@/components/Info.vue';
+import Assembly from '@/components/Assembly.vue';
 
 const MainStore = namespace('Main');
 
 @Component({
-    components: {Code, Tabs, Tab, Slide, Prism},
+    components: {Assembly, Info, Code, Tabs, Tab, Slide, Prism},
 })
 export default class Main extends Vue {
     @Prop({})

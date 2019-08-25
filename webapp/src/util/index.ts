@@ -1,4 +1,5 @@
-export function syntaxClassObj(syntax: Element) {
+export function syntaxClassObj(syntax: Element|undefined) {
+    if (!syntax) { return undefined; }
     const cls: { [key: string]: string } = {};
     const color = nodeColor(syntax);
     if (color) {

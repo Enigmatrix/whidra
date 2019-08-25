@@ -5,6 +5,8 @@
   </div>
 </template>
 <style lang="stylus">
+.bg-smoke-light
+  background: rgba(0,0,0,0.4)
 
 #app
   font-family 'Blinker', Helvetica, Arial, sans-serif

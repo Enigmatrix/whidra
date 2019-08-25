@@ -7,6 +7,7 @@ import ghidra.app.decompiler.LimitedByteBuffer
 import ghidra.app.util.PseudoDisassembler
 import ghidra.app.util.PseudoFlowProcessor
 import ghidra.app.util.PseudoInstruction
+import ghidra.program.flatapi.FlatProgramAPI
 import ghidra.program.model.address.Address
 import ghidra.program.model.listing.CodeUnitFormat
 import ghidra.program.model.listing.CodeUnitFormatOptions
@@ -23,6 +24,7 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.util.hex
 import model.Asm
+import model.Data
 import util.field
 import java.io.InputStream
 
@@ -59,28 +61,43 @@ class BinaryService : Service() {
         val file = project.rootFolder.getFile(binary)
 
         val program = file.getDomainObject(this, true, true, TaskMonitor.DUMMY) as Program
+        val formatter = CodeUnitFormat(
+            CodeUnitFormatOptions.ShowBlockName.NEVER,
+            CodeUnitFormatOptions.ShowNamespace.NEVER)
 
-        val disas = PseudoDisassembler(program)
+        val api = FlatProgramAPI(program)
+        val gAddr = api.toAddr(addr)
 
-        val gAddr = program.addressFactory.defaultAddressSpace.getAddress(addr)
-        val asm = mutableListOf<Asm>()
+        val iter = program.listing.getInstructions(gAddr, true)
+        return iter.map { x -> Asm(formatter.getRepresentationString(x), x.address.offset) }
+            .take(length.toInt())
+    }
 
-        val flows = disas.followSubFlows(gAddr, length.toInt(), object : PseudoFlowProcessor {
-            override fun followFlows(instr: PseudoInstruction?): Boolean {
-                return true
-            }
+    fun getData(repository: String, binary: String, addr: Long, length: Long): List<Data> {
+        val project = openProject(repository, true)
+        val file = project.rootFolder.getFile(binary)
 
-            override fun process(instr: PseudoInstruction?): Boolean {
-                if (instr == null) return false;
-                val formatter = CodeUnitFormat(
-                    CodeUnitFormatOptions.ShowBlockName.NEVER,
-                    CodeUnitFormatOptions.ShowNamespace.NEVER)
-                asm.add(Asm(formatter.getRepresentationString(instr), instr.address.offset))
-                return true;
-            }
-        })
+        val program = file.getDomainObject(this, true, true, TaskMonitor.DUMMY) as Program
+        val formatter = CodeUnitFormat(
+            CodeUnitFormatOptions.ShowBlockName.NEVER,
+            CodeUnitFormatOptions.ShowNamespace.NEVER)
 
-        return asm
+        val api = FlatProgramAPI(program)
+        val gAddr = api.toAddr(addr)
+
+        val iter = program.listing.getData(gAddr, true)
+        return iter.map { x -> Data(formatter.getDataValueRepresentationString(x), x.address.offset) }
+            .take(length.toInt())
+
+    }
+
+    fun getSymbolAddr(repository: String, binary: String, symbol: String): Long {
+        val project = openProject(repository, true)
+        val file = project.rootFolder.getFile(binary)
+
+        val program = file.getDomainObject(this, true, true, TaskMonitor.DUMMY) as Program
+
+        return program.symbolTable.getSymbol(symbol).address.offset
     }
 
 
@@ -109,6 +126,21 @@ fun Route.routesFor(svc: BinaryService) {
             val addr = call.field("addr")
             val length = call.field("length")
             call.respond(svc.getAsm(repository, binary, addr.toLong(), length.toLong()))
+        }
+
+        get("data") {
+            val repository = call.field("repository")
+            val binary = call.field("binary")
+            val addr = call.field("addr")
+            val length = call.field("length")
+            call.respond(svc.getData(repository, binary, addr.toLong(), length.toLong()))
+        }
+
+        get("symbol_addr") {
+            val repository = call.field("repository")
+            val binary = call.field("binary")
+            val symbol = call.field("symbol")
+            call.respond(svc.getSymbolAddr(repository, binary, symbol))
         }
 
         post("rename/var") {

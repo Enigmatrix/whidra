@@ -23,6 +23,10 @@ export default class MainStore extends VuexModule {
         const root = this.currentFunction.decompiledXml;
         return root.firstChild && root.firstChild.lastChild || undefined;
     }
+    get currentlySelectedNode(){
+        if (!this.currentFunction) { return undefined; }
+        return this.currentFunction.selectedXmlNode;
+    }
 
     @Mutation
     public setProject(project: string) {
@@ -31,6 +35,15 @@ export default class MainStore extends VuexModule {
     @Mutation
     public setBinary(binary: string) {
         this.binary = binary;
+    }
+    @Mutation
+    public selectNode(node: Element) {
+        if (!this.currentFunction) { return; }
+        this.currentFunction.selectedXmlNode = node;
+    }
+    @Mutation clearSelectedNode(){
+        if (!this.currentFunction) { return; }
+        this.currentFunction.selectedXmlNode = undefined;
     }
 
     @MutationAction({ mutate: ['currentFunction'] })

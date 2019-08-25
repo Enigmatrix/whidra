@@ -37,8 +37,3 @@ export default class Modal extends Vue {
     }
 }
 </script>
-
-<style lang="stylus">
-.bg-smoke-light
-    background: rgba(0,0,0,0.4)
-</style>

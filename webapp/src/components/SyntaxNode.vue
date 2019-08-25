@@ -9,18 +9,24 @@
 <script lang="ts">
     import {Vue, Prop, Component} from 'vue-property-decorator';
     import {syntaxClassObj} from '@/util';
+    import {namespace} from 'vuex-class';
+
+    const MainStore = namespace('Main');
     @Component({
         name: 'SyntaxNode'
     })
     export default class SyntaxNode extends Vue {
         @Prop({required: true}) syntax!: Element;
+        @MainStore.Mutation
+        private selectNode!: (s: Element) => void;
         get classObj(){
             return syntaxClassObj(this.syntax)
         }
         send(){
             const actual = this.syntax.parentElement;
+
             if(actual != null && actual.nodeName !== 'syntax')
-                this.$store.dispatch('selectNode', actual);
+                this.selectNode(actual)
         }
         // for debugging purposes
         get obj(){

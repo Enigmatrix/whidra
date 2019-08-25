@@ -2,6 +2,8 @@ package model
 
 data class Asm(val line: String, val addr: Long)
 
+data class Data(val value: String, val addr: Long)
+
 data class Function(val name: String, val addr: Long, val signature: String)
 
 data class Repository(val name: String, val binaries: List<Binary>)

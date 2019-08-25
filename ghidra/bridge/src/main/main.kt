@@ -45,6 +45,7 @@ import org.slf4j.event.Level
 import routes.*
 import util.RepositoryUtil.initServer
 import java.io.File
+import java.io.PrintWriter
 import java.util.concurrent.ConcurrentHashMap
 import ghidra.framework.Application as GhidraApplication
 
@@ -53,7 +54,7 @@ var tasks = ConcurrentHashMap<String, Channel<Task<*>>>()
 
 fun main() {
     init()
-    embeddedServer(Netty, 8000, watchPaths = listOf("bridge", "/opt/ghidra/bridge"),
+    embeddedServer(Netty, 8000, watchPaths = listOf("bridge", "/opt/ghidra/bridge", "ghidra", "src"),
         module = Application::module)
         .start(wait = true)
 }
@@ -72,7 +73,12 @@ fun Application.module() {
     }
 
     install(StatusPages) {
-        exception<Exception> { cause -> call.respond(HttpStatusCode.BadRequest, cause.localizedMessage) }
+        exception<NullPointerException> { cause -> call.respondTextWriter(status = HttpStatusCode.Conflict) {
+            val writer = PrintWriter(this)
+            cause.printStackTrace(writer)
+        }}
+        exception<Exception> { cause -> call.respond(HttpStatusCode.BadRequest,
+            cause.message ?: cause.localizedMessage ?: cause.toString()) }
     }
 
     install(Sessions) {
