@@ -1,14 +1,13 @@
 <template>
     <div class="fixed inset-0 z-30 overflow-auto bg-smoke-light flex" v-if="selectedNode" @click.self="clearSelectedNode">
-        <div class="font-code max-h-1/2 fixed bottom-0 bg-blue-900 w-full my-auto shadow-lg flex-col flex p-2 rounded-t-lg">
-            <span class="font-bold text-xl" :class="classObj">{{icon}} {{selectedNode.textContent}}</span>
-            <div class="border-b border-blue-700">
+        <div class="font-code infobox fixed bottom-0 bg-blue-900 w-full my-auto shadow-lg flex-col flex rounded-t-lg">
+            <button class="font-bold text-xl px-2 pt-2 inline-flex" :class="classObj">{{icon}} {{selectedNode.textContent}} &#xf8cb;</button>
+            <div class="border-b border-blue-700 px-2">
                 <button id="rename" class=" text-sm border border-gray-600 rounded px-1 m-1 text-gray-200">RENAME &#xf8ea;</button>
                 <button id="retype" v-if="nodeType !== 'type' && nodeType !== 'funcname'" class=" text-sm border border-gray-600 rounded px-1 m-1 text-gray-200">RETYPE &#xf417;</button>
                 <button id="modsig" v-if="nodeType === 'funcname'" class=" text-sm border border-gray-600 rounded px-1 m-1 text-gray-200">CHANGE SIGNATURE &#xf09a;</button>
             </div>
-            <div>
-                {{obj}}
+            <div class="overflow-auto m-1">
                 <FunctionInfo v-if="nodeType === 'funcname'"></FunctionInfo>
                 <ConstInfo v-else-if="nodeType === 'const'"></ConstInfo>
                 <GlobalInfo v-else-if="nodeType === 'global'"></GlobalInfo>
@@ -77,3 +76,7 @@ export default class Info extends Vue {
     }
 }
 </script>
+<style lang="stylus">
+    .infobox
+        max-height 50%;
+</style>

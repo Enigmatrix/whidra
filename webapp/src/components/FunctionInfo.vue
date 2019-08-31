@@ -1,5 +1,5 @@
 <template>
-    <Code :fnname="selectedNode.textContent" class="bg-gray-800"></Code>
+    <Code :fnname="selectedNode.textContent" class="bg-gray-800 fninfo" ></Code>
 </template>
 
 <script lang="ts">
