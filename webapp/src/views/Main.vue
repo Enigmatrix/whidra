@@ -2,7 +2,7 @@
     <div class="min-h-screen">
         <Slide>
             <div class="font-extrabold font-xl m-4">FUNCTIONS</div>
-            <div @click="() => functionSelected(func)" v-for="func in functions" class="flex flex-col text-sm py-1 px-2 border-b border-green-500" :class="{'bg-green-700': currentFunction && currentFunction.function === func}">
+            <div @click="() => functionSelected(func)" v-for="func in functions" class="flex flex-col text-sm py-1 px-2 border-b border-green-500" :class="{'bg-green-700': currentFunction === func}">
                 <div class="flex font-bold text-white">
                     <span class="text-base">{{func.name}}</span>
                     <div class="flex-1"></div>
@@ -16,10 +16,10 @@
 
             </Tab>
             <Tab title="CODE" active="true" icon="M14.6,16.6L19.2,12L14.6,7.4L16,6L22,12L16,18L14.6,16.6M9.4,16.6L4.8,12L9.4,7.4L8,6L2,12L8,18L9.4,16.6Z">
-                <Code :syntaxRoot="currentFunctionSyntaxTree" v-if="currentFunctionSyntaxTree"></Code>
+                <Code @selectnode="codeNodeSelected" :address="currentFunction.addr" v-if="currentFunction"/>
             </Tab>
             <Tab title="ASM" icon="M13,3V9H21V3M13,21H21V11H13M3,21H11V15H3M3,13H11V3H3V13Z">
-                <Assembly length="50"></Assembly>
+                <Assembly length="50" :initialMinAddr="currentFunction.addr" v-if="currentFunction"></Assembly>
             </Tab>
             <Tab title="TERM" icon="M20,19V7H4V19H20M20,3A2,2 0 0,1 22,5V19A2,2 0 0,1 20,21H4A2,2 0 0,1 2,19V5C2,3.89 2.9,3 4,3H20M13,17V15H18V17H13M9.58,13L5.57,9H8.4L11.7,12.3C12.09,12.69 12.09,13.33 11.7,13.72L8.42,17H5.59L9.58,13Z">
 
@@ -65,7 +65,7 @@ export default class Main extends Vue {
     private functions!: Func[];
 
     @MainStore.State
-    private currentFunction!: FuncSelection | undefined;
+    private currentFunction!: Func | undefined;
 
     @MainStore.Mutation
     private setProject!: (s: string) => void;
@@ -76,11 +76,11 @@ export default class Main extends Vue {
     @MainStore.Action
     private getFunctions!: () => Promise<void>;
 
-    @MainStore.Action
+    @MainStore.Mutation
     private selectFunction!: (func: Func) => Promise<void>;
 
-    @MainStore.Getter
-    private currentFunctionSyntaxTree: Element|undefined;
+    @MainStore.Mutation
+    private selectNode!: (e: Element) => void;
 
     async mounted() {
         this.setBinary(this.binary);
@@ -95,6 +95,10 @@ export default class Main extends Vue {
 
     hex(addr: Number){
         return "0x"+addr.toString(16);
+    }
+
+    codeNodeSelected(elem: Element) {
+        this.selectNode(elem);
     }
 }
 </script>

@@ -9,10 +9,10 @@ import ghidra.app.util.PseudoFlowProcessor
 import ghidra.app.util.PseudoInstruction
 import ghidra.program.flatapi.FlatProgramAPI
 import ghidra.program.model.address.Address
-import ghidra.program.model.listing.CodeUnitFormat
-import ghidra.program.model.listing.CodeUnitFormatOptions
-import ghidra.program.model.listing.Program
+import ghidra.program.model.lang.Register
+import ghidra.program.model.listing.*
 import ghidra.program.model.pcode.Varnode
+import ghidra.program.model.scalar.Scalar
 import ghidra.util.task.TaskMonitor
 import io.ktor.application.call
 import io.ktor.features.NotFoundException
@@ -23,9 +23,12 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.util.hex
-import model.Asm
 import model.Data
+import model.Instruction
+import model.OpPart
+import model.OpPartType
 import util.field
+import util.maybeField
 import java.io.InputStream
 
 
@@ -39,7 +42,7 @@ class BinaryService : Service() {
             model.Function(it.name, it.entryPoint.offset, it.signature.prototypeString) }
     }
 
-    fun getCode(repository: String, binary: String, addr: Long): String {
+    fun getCode(repository: String, binary: String, addr: Long?, fnname: String?): String {
         val project = openProject(repository, true)
         val file = project.rootFolder.getFile(binary)
 
@@ -49,14 +52,15 @@ class BinaryService : Service() {
         decompiler.openProgram(program)
 
         val functions = program.listing.getFunctions(true)
-        val function = functions.find { it.entryPoint.offset == addr } ?: throw NotFoundException("No function found at 0x${addr.toString(16)}")
+        val function = functions.find {
+            if (fnname != null) { it.name == fnname } else { it.entryPoint.offset == addr} } ?: throw NotFoundException("No function found at 0x${addr?.toString(16)}")
 
         val stream = decompiler.decompileFunctionXML(function, -1, TaskMonitor.DUMMY)?.readAllBytes()
             ?: throw Exception("Decompile output empty")
         return String(stream)
     }
 
-    fun getAsm(repository: String, binary: String, addr: Long, length: Long): List<Asm> {
+    fun getAsm(repository: String, binary: String, addr: Long, length: Long): List<Instruction> {
         val project = openProject(repository, true)
         val file = project.rootFolder.getFile(binary)
 
@@ -68,9 +72,39 @@ class BinaryService : Service() {
         val api = FlatProgramAPI(program)
         val gAddr = api.toAddr(addr)
 
-        val iter = program.listing.getInstructions(gAddr, true)
-        return iter.map { x -> Asm(formatter.getRepresentationString(x), x.address.offset) }
+        val iter = program.listing.getCodeUnits(gAddr, true)
+
+        return iter
             .take(length.toInt())
+            .map { x ->
+
+                if(x is ghidra.program.model.listing.Data) {
+                    println(formatter.getDataValueRepresentationString(x))
+                }
+
+                val operands = (0 until x.numOperands).map { i ->
+                    val operand = formatter.getOperandRepresentationList(x, i)
+                    operand.map { opPart ->
+                         when(opPart) {
+                            is Char -> OpPart(opPart, OpPartType.Char)
+                            is Register -> OpPart(opPart.name.toLowerCase(), OpPartType.Register)
+                            is LabelString -> OpPart(opPart.toString(), OpPartType.Label)
+                            is VariableOffset -> OpPart(opPart.variable.name, OpPartType.Variable)
+                            is Scalar -> OpPart(opPart.toString(), OpPartType.Scalar)
+                            else -> {
+                                println("unknown $opPart of <${opPart.javaClass}>")
+                                OpPart(opPart, OpPartType.Unknown)
+                            }
+                        }
+                    }
+                }
+
+                //formatter.getReferenceRepresentationString(x, x.refere)
+                println(formatter.getRepresentationString(x, true))
+                println()
+
+                Instruction(x.address.offset, x.mnemonicString.toLowerCase(), operands)
+        }
     }
 
     fun getData(repository: String, binary: String, addr: Long, length: Long): List<Data> {
@@ -116,8 +150,9 @@ fun Route.routesFor(svc: BinaryService) {
         get("code") {
             val repository = call.field("repository")
             val binary = call.field("binary")
-            val addr = call.field("addr")
-            call.respond(svc.getCode(repository, binary, addr.toLong()))
+            val addr = call.maybeField("addr")
+            val fnname = call.maybeField("fnName")
+            call.respond(svc.getCode(repository, binary, addr?.toLong(), fnname))
         }
 
         get("asm") {

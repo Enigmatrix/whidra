@@ -2,7 +2,7 @@ module.exports = {
     devServer: {
         proxy: {
           '^/api': {
-              target: 'http://ghidra:8000/',
+              target: 'http://localhost:8001/',
                 ws: true,
                 changeOrigin: true
             }

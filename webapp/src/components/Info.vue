@@ -1,7 +1,7 @@
 <template>
-    <div class="fixed inset-0 z-30 overflow-auto bg-smoke-light flex" v-if="currentlySelectedNode" @click.self="clearSelectedNode">
-        <div class="font-code fixed bottom-0 bg-gray-700 w-full my-auto shadow-lg flex-col flex p-2 rounded-t-lg">
-            <span class="font-bold text-xl" :class="classObj">{{icon}} {{currentlySelectedNode.textContent}}</span>
+    <div class="fixed inset-0 z-30 overflow-auto bg-smoke-light flex" v-if="selectedNode" @click.self="clearSelectedNode">
+        <div class="font-code max-h-1/2 fixed bottom-0 bg-blue-900 w-full my-auto shadow-lg flex-col flex p-2 rounded-t-lg">
+            <span class="font-bold text-xl" :class="classObj">{{icon}} {{selectedNode.textContent}}</span>
             <div class="border-b border-blue-700">
                 <button id="rename" class=" text-sm border border-gray-600 rounded px-1 m-1 text-gray-200">RENAME &#xf8ea;</button>
                 <button id="retype" v-if="nodeType !== 'type' && nodeType !== 'funcname'" class=" text-sm border border-gray-600 rounded px-1 m-1 text-gray-200">RETYPE &#xf417;</button>
@@ -39,11 +39,11 @@ export default class Info extends Vue {
     @MainStore.Mutation
     private clearSelectedNode!: () => void;
 
-    @MainStore.Getter
-    private currentlySelectedNode: Element|undefined;
+    @MainStore.State
+    private selectedNode: Element|undefined;
 
     get classObj() {
-        return syntaxClassObj(this.currentlySelectedNode)
+        return syntaxClassObj(this.selectedNode)
     }
 
     get icon() {
@@ -66,14 +66,14 @@ export default class Info extends Vue {
     }
 
     get nodeType() {
-        if (!this.currentlySelectedNode) { return }
-        return nodeColor(this.currentlySelectedNode);
+        if (!this.selectedNode) { return }
+        return nodeColor(this.selectedNode);
     }
 
     get obj(){
-        if (!this.currentlySelectedNode) { return }
+        if (!this.selectedNode) { return }
         const s = new XMLSerializer();
-        return s.serializeToString(this.currentlySelectedNode);
+        return s.serializeToString(this.selectedNode);
     }
 }
 </script>

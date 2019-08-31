@@ -13,9 +13,26 @@ export interface Func {
     signature: string;
 }
 
-export interface Asm {
-    line: string;
+enum OpPartType {
+    Char = 1,
+    Register = 2,
+    Label = 3,
+    Variable = 4,
+    Scalar = 5,
+    Unknown = 6,
+}
+
+export interface OpPart {
+    value: number|string;
+    type: OpPartType;
+}
+
+export type Operand = OpPart[]
+
+export interface Instruction {
     addr: number;
+    mnemonic: string;
+    operands: Operand[];
 }
 
 export type WsMessage = ProgressWsMessage;

@@ -7,6 +7,7 @@ import ghidra.framework.HeadlessGhidraApplicationConfiguration
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
+import io.ktor.features.CORS
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.StatusPages
@@ -54,7 +55,7 @@ var tasks = ConcurrentHashMap<String, Channel<Task<*>>>()
 
 fun main() {
     init()
-    embeddedServer(Netty, 8000, watchPaths = listOf("bridge", "/opt/ghidra/bridge", "ghidra", "src"),
+    embeddedServer(Netty, 8001, watchPaths = listOf("bridge", "/opt/ghidra/bridge", "ghidra", "src"),
         module = Application::module)
         .start(wait = true)
 }
@@ -96,6 +97,13 @@ fun Application.module() {
             defaultPage = "index.html"
         }
     }
+
+    //if(System.getenv("DEV") != null) {
+        install(CORS) {
+            anyHost()
+            allowCredentials = true
+        }
+    //}
 
 
     val binSvc = BinaryService()

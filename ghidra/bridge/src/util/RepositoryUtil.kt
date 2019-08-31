@@ -15,11 +15,11 @@ object RepositoryUtil {
     private lateinit var server: RepositoryServerAdapter
     private const val host = "localhost"
     private const val port = 13100
-    private const val user = "ghidra"
+    private const val user = "enigmatrix"
     private const val defaultPassword = "changeme"
 
     fun initServer() {
-        val passFile = File("GHIDRA_USER_PASSWORD")
+        val passFile = File(user.toUpperCase()+"_USER_PASSWORD")
 
         if(!passFile.exists()){
             val newPass = randomSecret()
@@ -33,16 +33,6 @@ object RepositoryUtil {
         val pass = passFile.readText()
         ClientUtil.setClientAuthenticator(PasswordClientAuthenticator(user, pass))
         server = ClientUtil.getRepositoryServer(host, port, true)
-    }
-
-    fun projectData(repoName: String, readOnly: Boolean): ProjectData {
-        val repo = GhidraURLConnection(URL("ghidra", host, "/$repoName"))
-        repo.isReadOnly = readOnly
-        return repo.projectData ?: throw Exception("Project data not found")
-    }
-
-    fun repository(repoName: String): RepositoryAdapter {
-        return server.getRepository(repoName)
     }
 
     fun newRepository(repoName: String) {
