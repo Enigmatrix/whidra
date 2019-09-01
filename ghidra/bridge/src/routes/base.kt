@@ -1,11 +1,15 @@
 package routes
 
+import ghidra.framework.data.CheckinHandler
 import ghidra.framework.model.ProjectData
 import ghidra.framework.protocol.ghidra.GhidraURLConnection
+import ghidra.program.model.listing.Function
+import ghidra.program.model.listing.Program
 import ghidra.util.Msg
 import ghidra.util.task.TaskMonitor
 import ghidra.util.task.TaskMonitorAdapter
 import io.ktor.application.ApplicationCall
+import io.ktor.features.NotFoundException
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
 import io.ktor.request.isMultipart
@@ -64,10 +68,54 @@ fun <T> task(block: suspend Task<T>.() -> T): Task<T> {
 
 open class Service {
 
+    fun fnRef(fnAddr: Long?, fnName: String?): String {
+        return if (fnAddr == null) {
+            "with name `$fnName`"
+        }
+        else {
+            "with address 0x${fnAddr.toString(16)}"
+        }
+    }
+
+    fun functionFrom(program: Program, fnname: String?, addr: Long?): Function {
+        val functions = program.listing.getFunctions(true)
+        return functions.find {
+            if (fnname != null) { it.name == fnname } else { it.entryPoint.offset == addr} } ?: throw NotFoundException("No function found at 0x${addr?.toString(16)}")
+    }
+
+    fun editProgram(repository: String, binary: String, msg: String, monitor: TaskMonitor, block: (Program) -> Unit): Program  {
+        val project = openProject(repository, false)
+        val file = project.rootFolder.getFile(binary)
+
+        file.checkout(false, monitor)
+        val program = file.getDomainObject(this, true, true, monitor) as Program
+        val tx = program.startTransaction(msg)
+        //TODO try catch
+        block(program)
+        //TODO wtf is this boolean?
+        program.endTransaction(tx, true)
+        file.save(monitor)
+        file.checkin(CheckinWithComment(msg), true, monitor)
+        return program
+    }
+
+    class CheckinWithComment(val cmt: String): CheckinHandler {
+        override fun getComment() = cmt
+        override fun createKeepFile() = false
+        override fun keepCheckedOut() = false
+    }
+
     fun openProject(repoName: String, readOnly: Boolean): ProjectData {
         val repo = GhidraURLConnection(URL("ghidra", "localhost", "/$repoName"))
         repo.isReadOnly = readOnly
         return repo.projectData ?: throw Exception("Project data not found")
+    }
+
+    fun openProgram(repository: String, binary: String): Program {
+        val project = openProject(repository, true)
+        val file = project.rootFolder.getFile(binary)
+        val program = file.getDomainObject(this, true, true, TaskMonitor.DUMMY) as Program
+        return program
     }
 
 }

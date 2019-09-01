@@ -33,27 +33,20 @@ import java.io.InputStream
 
 
 class BinaryService : Service() {
-    fun getFunctions(repository: String, binary: String): List<model.Function> {
-        val project = openProject(repository, true)
-        val file = project.rootFolder.getFile(binary)
-        val program = file.getDomainObject(this, true, true, TaskMonitor.DUMMY) as Program
 
+    fun getFunctions(repository: String, binary: String): List<model.Function> {
+        val program = openProgram(repository, binary)
         return program.listing.getFunctions(true).map {
             model.Function(it.name, it.entryPoint.offset, it.signature.prototypeString) }
     }
 
     fun getCode(repository: String, binary: String, addr: Long?, fnname: String?): String {
-        val project = openProject(repository, true)
-        val file = project.rootFolder.getFile(binary)
-
-        val program = file.getDomainObject(this, true, true, TaskMonitor.DUMMY) as Program
+        val program = openProgram(repository, binary)
 
         val decompiler = DecompilerXML()
         decompiler.openProgram(program)
 
-        val functions = program.listing.getFunctions(true)
-        val function = functions.find {
-            if (fnname != null) { it.name == fnname } else { it.entryPoint.offset == addr} } ?: throw NotFoundException("No function found at 0x${addr?.toString(16)}")
+        val function = functionFrom(program, fnname, addr)
 
         val stream = decompiler.decompileFunctionXML(function, -1, TaskMonitor.DUMMY)?.readAllBytes()
             ?: throw Exception("Decompile output empty")
@@ -61,10 +54,7 @@ class BinaryService : Service() {
     }
 
     fun getAsm(repository: String, binary: String, addr: Long, length: Long): List<Instruction> {
-        val project = openProject(repository, true)
-        val file = project.rootFolder.getFile(binary)
-
-        val program = file.getDomainObject(this, true, true, TaskMonitor.DUMMY) as Program
+        val program = openProgram(repository, binary)
         val formatter = CodeUnitFormat(
             CodeUnitFormatOptions.ShowBlockName.NEVER,
             CodeUnitFormatOptions.ShowNamespace.NEVER)
@@ -108,10 +98,7 @@ class BinaryService : Service() {
     }
 
     fun getData(repository: String, binary: String, addr: Long, length: Long): List<Data> {
-        val project = openProject(repository, true)
-        val file = project.rootFolder.getFile(binary)
-
-        val program = file.getDomainObject(this, true, true, TaskMonitor.DUMMY) as Program
+        val program = openProgram(repository, binary)
         val formatter = CodeUnitFormat(
             CodeUnitFormatOptions.ShowBlockName.NEVER,
             CodeUnitFormatOptions.ShowNamespace.NEVER)
@@ -126,11 +113,7 @@ class BinaryService : Service() {
     }
 
     fun getSymbolAddr(repository: String, binary: String, symbol: String): Long {
-        val project = openProject(repository, true)
-        val file = project.rootFolder.getFile(binary)
-
-        val program = file.getDomainObject(this, true, true, TaskMonitor.DUMMY) as Program
-
+        val program = openProgram(repository, binary)
         return program.symbolTable.getSymbol(symbol).address.offset
     }
 
