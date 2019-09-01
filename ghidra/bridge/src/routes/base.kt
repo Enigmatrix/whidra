@@ -129,6 +129,10 @@ class Form {
         return fields[name] ?: throw ParamException(name)
     }
 
+    fun maybeField(name: String): String? {
+        return fields[name]
+    }
+
     fun file(name: String): PartData.FileItem {
         return files[name] ?: throw ParamException(name, ParamType.FILE)
     }

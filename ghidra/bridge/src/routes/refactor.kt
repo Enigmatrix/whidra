@@ -2,7 +2,14 @@ package routes
 
 import ghidra.program.model.symbol.SourceType
 import ghidra.util.task.TaskMonitor
+import io.ktor.application.call
 import io.ktor.features.NotFoundException
+import io.ktor.response.respond
+import io.ktor.routing.Route
+import io.ktor.routing.get
+import io.ktor.routing.post
+import io.ktor.routing.route
+import util.field
 
 
 class RefactorService : Service() {
@@ -31,4 +38,41 @@ class RefactorService : Service() {
         }
     }
 
+}
+
+fun Route.routesFor(svc: RefactorService) {
+    route("refactor") {
+        route("rename") {
+            post("variable") {
+                val form = call.receiveForm()
+                val repository = form.field("repository")
+                val binary = form.field("binary")
+                val fnAddr = form.maybeField("fnAddr")
+                val fnName = form.maybeField("fnName")
+                val oldVarName = form.field("oldVarName")
+                val newVarName = form.field("newVarName")
+
+                call.respond(svc.renameVariable(repository, binary, fnAddr?.toLong(), fnName, oldVarName, newVarName))
+            }
+            post("symbol") {
+                val form = call.receiveForm()
+                val repository = form.field("repository")
+                val binary = form.field("binary")
+                val oldSymName = form.field("oldSymName")
+                val newSymName = form.field("newSymName")
+
+                call.respond(svc.renameSymbol(repository, binary, oldSymName, newSymName))
+            }
+            post("function") {
+                val form = call.receiveForm()
+                val repository = form.field("repository")
+                val binary = form.field("binary")
+                val fnAddr = form.maybeField("fnAddr")
+                val fnName = form.maybeField("fnName")
+                val newFnName = form.field("newFnName")
+
+                call.respond(svc.renameFunction(repository, binary, fnAddr?.toLong(), fnName, newFnName))
+            }
+        }
+    }
 }
