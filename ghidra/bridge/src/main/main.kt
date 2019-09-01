@@ -74,12 +74,11 @@ fun Application.module() {
     }
 
     install(StatusPages) {
-        exception<NullPointerException> { cause -> call.respondTextWriter(status = HttpStatusCode.Conflict) {
+        exception<Exception> { cause -> call.respondTextWriter(status = HttpStatusCode.BadRequest) {
             val writer = PrintWriter(this)
+            writer.print(cause.message ?: cause.localizedMessage ?: cause.toString()+"\n")
             cause.printStackTrace(writer)
         }}
-        exception<Exception> { cause -> call.respond(HttpStatusCode.BadRequest,
-            cause.message ?: cause.localizedMessage ?: cause.toString()) }
     }
 
     install(Sessions) {
@@ -91,11 +90,11 @@ fun Application.module() {
     }
 
     if(System.getenv("DEV") == null) {
-        install(SinglePageApplication) {
+        /*install(SinglePageApplication) {
             useFiles = true
             folderPath = "frontend"
             defaultPage = "index.html"
-        }
+        }*/
     }
 
     //if(System.getenv("DEV") != null) {
@@ -109,11 +108,13 @@ fun Application.module() {
     val binSvc = BinaryService()
     val repoSvc = RepositoryService()
     val userSvc = UserService()
+    val refactorSvc = RefactorService()
 
     routing {
         route("api") {
 
             routesFor(binSvc)
+            routesFor(refactorSvc)
             routesFor(repoSvc)
             routesFor(userSvc)
 

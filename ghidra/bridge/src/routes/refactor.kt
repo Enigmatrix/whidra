@@ -50,7 +50,7 @@ fun Route.routesFor(svc: RefactorService) {
                 val fnAddr = form.maybeField("fnAddr")
                 val fnName = form.maybeField("fnName")
                 val oldVarName = form.field("oldVarName")
-                val newVarName = form.field("newVarName")
+                val newVarName = form.field("newName")
 
                 call.respond(svc.renameVariable(repository, binary, fnAddr?.toLong(), fnName, oldVarName, newVarName))
             }
@@ -59,7 +59,7 @@ fun Route.routesFor(svc: RefactorService) {
                 val repository = form.field("repository")
                 val binary = form.field("binary")
                 val oldSymName = form.field("oldSymName")
-                val newSymName = form.field("newSymName")
+                val newSymName = form.field("newName")
 
                 call.respond(svc.renameSymbol(repository, binary, oldSymName, newSymName))
             }
@@ -69,7 +69,7 @@ fun Route.routesFor(svc: RefactorService) {
                 val binary = form.field("binary")
                 val fnAddr = form.maybeField("fnAddr")
                 val fnName = form.maybeField("fnName")
-                val newFnName = form.field("newFnName")
+                val newFnName = form.field("newName")
 
                 call.respond(svc.renameFunction(repository, binary, fnAddr?.toLong(), fnName, newFnName))
             }
