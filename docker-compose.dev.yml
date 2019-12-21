@@ -1,7 +1,19 @@
 version: '3.6'
 
 services:
+  ghidra:
+    build:
+      context: .
+      target: ghidra-dev
+    ports: 
+      - 13100
+      - 13101
+      - 13102
   backend:
     build:
       context: .
-      target: backend
+      target: backend-dev
+    ports: 
+      - 8080
+    volumes:
+      - ./server:/server

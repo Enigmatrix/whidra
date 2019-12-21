@@ -1,18 +1,19 @@
-# Base Image {{{
+# Base Images {{{
+FROM openjdk:11-slim as jvm
+RUN update-alternatives --install "/usr/bin/java" "java" "/usr/local/openjdk-11/bin/java" 0 && \
+    update-alternatives --install "/usr/bin/javac" "javac" "/usr/local/openjdk-11/bin/javac" 0
+RUN apt-get update && apt-get install -y unzip wget gettext-base patch sudo ed libfreetype6 libfontconfig1 fontconfig-config libexpat1 fonts-dejavu-core libpng16-16 entr
 
-FROM openjdk:11-slim as base
+FROM jvm as ghidra_base
 ARG GHIDRA_VERSION=9.1_PUBLIC_20191023
 ARG GHIDRA_SHA256=29d130dfe85da6ec45dfbf68a344506a8fdcc7cfe7f64a3e7ffb210052d1875e
 
 RUN useradd -m ghidra && \
     mkdir -p /srv/repositories && \
-    chown -R ghidra: /srv/repositories && \
-    update-alternatives --install "/usr/bin/java" "java" "/usr/local/openjdk-11/bin/java" 0 && \
-    update-alternatives --install "/usr/bin/javac" "javac" "/usr/local/openjdk-11/bin/javac" 0
+    chown -R ghidra: /srv/repositories
 
 WORKDIR /opt
-RUN apt-get update && apt-get install -y unzip wget gettext-base patch sudo ed libfreetype6 libfontconfig1 fontconfig-config libexpat1 fonts-dejavu-core libpng16-16 && \
-    wget -q -O ghidra.zip https://ghidra-sre.org/ghidra_${GHIDRA_VERSION}.zip && \
+RUN wget -q -O ghidra.zip https://ghidra-sre.org/ghidra_${GHIDRA_VERSION}.zip && \
     echo "${GHIDRA_SHA256} *ghidra.zip" | sha256sum -c && \
     unzip ghidra.zip && \
     rm ghidra.zip && \
@@ -37,8 +38,18 @@ CMD custom/start.sh
 
 # }}}
 
+# Development Image: Ghidra Server {{{
+FROM ghidra_base as ghidra-dev
+# }}}
+
 # Development Image: Backend {{{
-FROM base as backend
+FROM jvm as backend-dev
+WORKDIR /server
+VOLUME /server
+COPY --from=ghidra_base /opt/ghidra/ghidra.jar ./ghidra.jar
+RUN mkdir -p ~/.gradle && echo 'org.gradle.daemon=false' > ~/.gradle/gradle.properties
+EXPOSE 8080
+ENTRYPOINT [ "sh", "-c", "(while true; do find -name '*.kt' | entr -d -r ./gradlew --no-daemon run; done)" ]
 # }}}
 
 # Development Image: Frontend {{{
