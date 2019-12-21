@@ -1,5 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val ktor_version = "1.2.5"
+
 plugins {
     kotlin("jvm") version "1.3.41"
     application
@@ -15,10 +17,10 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    val ktor_version = "1.2.5"
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("io.ktor:ktor-jackson:$ktor_version")
+    implementation("ch.qos.logback-classic:1.2.3")
 }
 
 application {
