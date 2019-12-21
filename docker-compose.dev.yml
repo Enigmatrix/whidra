@@ -1,7 +1,7 @@
-version: '3'
+version: '3.6'
 
 services:
-  ghidra:
+  backend:
     build:
-      context: ./ghidra
-      dockerfile: dev.Dockerfile
+      context: .
+      target: backend

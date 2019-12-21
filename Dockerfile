@@ -1,4 +1,6 @@
-FROM openjdk:11-slim
+# Base Image {{{
+
+FROM openjdk:11-slim as base
 ARG GHIDRA_VERSION=9.1_PUBLIC_20191023
 ARG GHIDRA_SHA256=29d130dfe85da6ec45dfbf68a344506a8fdcc7cfe7f64a3e7ffb210052d1875e
 
@@ -19,12 +21,12 @@ RUN apt-get update && apt-get install -y unzip wget gettext-base patch sudo ed l
     rm -rf docs && \
     cd .. && chown -R ghidra: ghidra* 
 WORKDIR /opt/ghidra
-COPY --chown=ghidra:ghidra ./custom/BuildSingleGhidraJar.java /opt/ghidra/custom/BuildSingleGhidraJar.java
+COPY --chown=ghidra:ghidra ./ghidra/custom/BuildSingleGhidraJar.java /opt/ghidra/custom/BuildSingleGhidraJar.java
 RUN ./support/analyzeHeadless . empty -postScript ./custom/BuildSingleGhidraJar.java /opt/ghidra/ghidra.jar -noanalysis -deleteProject && chown ghidra ghidra.jar
 
 VOLUME /srv/repositories
 ENV ghidra_home=/opt/ghidra
-COPY --chown=ghidra:ghidra ./ /opt/ghidra/
+COPY --chown=ghidra:ghidra ./ghidra/ /opt/ghidra/
 
 RUN server/svrInstall
 
@@ -32,3 +34,15 @@ EXPOSE 13100 13101 13102
 USER ghidra
 
 CMD custom/start.sh
+
+# }}}
+
+# Development Image: Backend {{{
+FROM base as backend
+# }}}
+
+# Development Image: Frontend {{{
+# }}}
+
+# Production Image {{{
+# }}}
