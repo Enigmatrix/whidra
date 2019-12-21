@@ -49,7 +49,7 @@ VOLUME /server
 COPY --from=ghidra_base /opt/ghidra/ghidra.jar ./ghidra.jar
 RUN mkdir -p ~/.gradle && echo 'org.gradle.daemon=false' > ~/.gradle/gradle.properties
 EXPOSE 8080
-ENTRYPOINT [ "sh", "-c", "(while true; do find -name '*.kt' | entr -d -r ./gradlew --no-daemon run; done)" ]
+ENTRYPOINT [ "sh", "-c", "(while true; do find -name '*.kt' | entr -d -r sudo ./gradlew --no-daemon run; done)" ]
 # }}}
 
 # Development Image: Frontend {{{
