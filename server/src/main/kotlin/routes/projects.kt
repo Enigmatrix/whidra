@@ -21,6 +21,7 @@ class Project {
     class All
 }
 
+// TODO get rid of these stupid wartings proejct-wide
 fun Route.projects() {
     post<Project.Create> {
         val server = call.whidraSession().server
@@ -39,15 +40,18 @@ fun Route.projects() {
     get<Project.All> {
         val server = call.whidraSession().server
 
-        server.repositoryNames.map {
+        call.respond(server.repositoryNames.map {
             projectFrom(server.getRepository(it))
-        }
+        })
     }
 }
 
 fun projectFrom(repo: RepositoryAdapter): models.Project {
-    return models.Project(repo.name,
+    repo.connect()
+    val proj = models.Project(repo.name,
         binaries = repo.getItemList("/").map { Binary(it.name) })
+    repo.disconnect()
+    return proj
 }
 
 
