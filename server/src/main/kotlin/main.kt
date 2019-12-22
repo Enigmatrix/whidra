@@ -13,6 +13,7 @@ import io.ktor.server.netty.Netty
 import org.slf4j.event.Level
 import ghidra.WhidraClient
 import io.ktor.http.HttpStatusCode
+import io.ktor.locations.Locations
 import io.ktor.request.receiveMultipart
 import io.ktor.request.receiveParameters
 
@@ -21,6 +22,8 @@ import io.ktor.routing.post
 import io.ktor.sessions.*
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
+import routes.projects
+import routes.users
 import session.WhidraSession
 import session.WhidraUser
 import session.genSessionId
@@ -49,42 +52,17 @@ fun Application.module() {
         level = Level.INFO
     }
 
+    install(Locations)
+
     install(Sessions) {
         cookie<WhidraUser>("SESS_USER_ID",
             directorySessionStorage(File("/var/sessions"), cached=true))
     }
 
     routing {
-        route("api") {
-            get("hello") {
-                call.respond("hello")
-            }
-
-            get("users") {
-                val sess = call.whidraSession()
-                call.respond(sess.server.allUsers)
-            }
-
-            post("login") {
-                if (call.sessions.get<WhidraUser>() != null) {
-                    throw WhidraException("Pre-existing session found")
-                }
-
-                val user = call.request.queryParameters["user"]
-                val pass = call.request.queryParameters["pass"]
-                if (user == null || pass == null) {
-                    throw WhidraException("Missing params")
-                }
-
-                val rsa = WhidraClient.login(user, pass)
-                if (rsa == null) {
-                    call.respond(HttpStatusCode.Unauthorized)
-                }
-                else {
-                    call.sessions.set(WhidraUser(user, pass))
-                    call.respond(HttpStatusCode.OK)
-                }
-            }
+        route("/api") {
+            users()
+            projects()
         }
     }
 }
