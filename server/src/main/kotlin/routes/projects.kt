@@ -9,36 +9,36 @@ import io.ktor.routing.Route
 import models.Binary
 import session.whidraSession
 
-@Location("/projects")
-class Project {
+@Location("/projects/{name}")
+data class Project(val name: String) {
     @Location("/create")
-    class Create(val name: String)
+    data class Create(val project: Project)
 
     @Location("/delete")
-    class Delete(val name: String)
-
-    @Location("/all")
-    class All
+    data class Delete(val project: Project)
 }
+
+@Location("/projects/all")
+class AllProjects
 
 // TODO get rid of these stupid wartings proejct-wide
 fun Route.projects() {
     post<Project.Create> {
-        val server = call.whidraSession().server
+        val (server) = call.whidraSession()
 
-        val project = server.createRepository(it.name)
+        val project = server.createRepository(it.project.name)
         call.respond(projectFrom(project))
     }
 
     delete<Project.Delete> {
-        val server = call.whidraSession().server
+        val (server) = call.whidraSession()
 
-        server.deleteRepository(it.name)
+        server.deleteRepository(it.project.name)
         call.respond(HttpStatusCode.OK)
     }
 
-    get<Project.All> {
-        val server = call.whidraSession().server
+    get<AllProjects> {
+        val (server) = call.whidraSession()
 
         call.respond(server.repositoryNames.map {
             projectFrom(server.getRepository(it))

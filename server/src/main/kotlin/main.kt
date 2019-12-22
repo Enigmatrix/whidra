@@ -1,35 +1,36 @@
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.application.Application
-import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.jackson.jackson
-import io.ktor.response.respond
-import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.slf4j.event.Level
 import ghidra.WhidraClient
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.cio.websocket.CloseReason
+import io.ktor.http.cio.websocket.send
 import io.ktor.locations.Locations
-import io.ktor.request.receiveMultipart
-import io.ktor.request.receiveParameters
 
-import io.ktor.response.header
-import io.ktor.routing.post
 import io.ktor.sessions.*
 import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
+import io.ktor.websocket.WebSockets
+import io.ktor.websocket.webSocket
+import javafx.application.Application.launch
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.mapNotNull
+import models.WsOut
+import routes.binaries
 import routes.projects
 import routes.users
-import session.WhidraSession
 import session.WhidraUser
-import session.genSessionId
 import session.whidraSession
-import utils.WhidraException
 import java.io.File
+
+lateinit var serializer: ObjectMapper
 
 @InternalAPI
 @KtorExperimentalAPI
@@ -45,7 +46,7 @@ fun main() {
 @KtorExperimentalAPI
 fun Application.module() {
     install(ContentNegotiation) {
-        jackson { }
+        jackson { serializer = this }
     }
 
     install(CallLogging) {
@@ -53,6 +54,8 @@ fun Application.module() {
     }
 
     install(Locations)
+
+    install(WebSockets)
 
     install(Sessions) {
         cookie<WhidraUser>("SESS_USER_ID",
@@ -63,6 +66,27 @@ fun Application.module() {
         route("/api") {
             users()
             projects()
+            binaries()
+
+            webSocket("event-stream") {
+
+                try {
+                    val (_, taskMgr) = call.whidraSession()
+
+                    for(task in taskMgr.tasks) {
+                        for(event in task.events){
+                            send(serializer.writeValueAsString(WsOut.Progress(task.id, event)))
+                        }
+                    }
+                }
+                catch (e: ClosedReceiveChannelException) {
+                    // TODO maybe destroy cached session here?
+                }
+                catch (e: Throwable) {
+                    println("exception thrown:")
+                    throw e
+                }
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ import io.ktor.response.header
 import io.ktor.response.respondRedirect
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
+import utils.TaskManager
 import java.lang.Exception
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -16,7 +17,7 @@ import javax.security.auth.login.LoginException
 
 data class WhidraUser(val user: String, val pass: String)
 
-data class WhidraSession(val server: RepositoryServerAdapter)
+data class WhidraSession(val server: RepositoryServerAdapter, val taskMgr: TaskManager)
 
 const val SESS_NAME = "SESS_ID"
 val cache = CacheBuilder.newBuilder()
@@ -26,7 +27,7 @@ val cache = CacheBuilder.newBuilder()
 // TODO create custom exception types
 fun createWhidraSession(user: String, pass: String): WhidraSession {
     val rsa = WhidraClient.login(user, pass) ?: throw LoginException()
-    return WhidraSession(rsa)
+    return WhidraSession(rsa, TaskManager())
 }
 
 // TODO frontend needs to make generate its own session id
@@ -39,6 +40,6 @@ fun ApplicationCall.whidraSession(): WhidraSession {
     }
 }
 
-fun genSessionId(): String {
+fun genRandomId(): String {
     return UUID.randomUUID().toString()
 }
