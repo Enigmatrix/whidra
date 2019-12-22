@@ -5,6 +5,14 @@ import router from "./router";
 import store from "./store";
 import "./assets/tailwind.css";
 
+import { library } from "@fortawesome/fontawesome-svg-core";
+import {
+  faUserSecret,
+  faProjectDiagram,
+  faFileCode
+} from "@fortawesome/free-solid-svg-icons";
+library.add(faUserSecret, faProjectDiagram, faFileCode);
+
 Vue.config.productionTip = false;
 
 new Vue({
