@@ -17,10 +17,16 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
+
+    implementation(files("./ghidra.jar"))
+
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("io.ktor:ktor-jackson:$ktor_version")
-    implementation("ch.qos.logback-classic:1.2.3")
+    implementation("io.ktor:ktor-websockets:$ktor_version")
+    implementation("io.ktor:ktor-server-sessions:$ktor_version")
+
+    implementation("ch.qos.logback:logback-classic:1.2.3")
 }
 
 application {
