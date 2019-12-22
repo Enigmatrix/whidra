@@ -1,11 +1,10 @@
 package routes
 
-import ghidra.WhidraClient
 import ghidra.app.plugin.core.analysis.AutoAnalysisManager
 import ghidra.app.util.importer.AutoImporter
 import ghidra.app.util.importer.MessageLog
-import ghidra.base.project.GhidraProject.openProject
-import ghidra.openProject
+import ghidra.program
+import ghidra.projectData
 import ghidra.program.util.GhidraProgramUtilities
 import io.ktor.application.call
 import io.ktor.http.content.PartData
@@ -18,6 +17,7 @@ import io.ktor.routing.Route
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import models.Binary
+import models.Function
 import session.whidraSession
 import utils.WhidraException
 import utils.task
@@ -25,15 +25,32 @@ import java.io.File
 
 @Location("/{project}/binary/{name}")
 data class Binary(val project: String, val name: String) {
+    @Location("/functions")
+    data class Functions(val binary: routes.Binary)
 
+    @Location("/code")
+    data class Code(val binary: routes.Binary, val addr: String)
+
+    @Location("/listing")
+    data class Listing(val binary: routes.Binary, val addr: String, val len: Int)
 }
 
 @Location("/{project}/binary/upload")
 data class UploadBinary(val project: String, val name: String)
 
 fun Route.binaries() {
+
+    get<routes.Binary.Functions> { func ->
+        val (server) = call.whidraSession()
+
+        val program = server.program(func.binary.project, func.binary.name)
+        call.respond(program.functionManager.getFunctions(true).map {
+            Function(it.name, it.signature.prototypeString, it.entryPoint.offset,  it.isInline, it.isThunk, it.isExternal)
+        })
+    }
+
     post<UploadBinary> {
-        val session = call.whidraSession()
+        val (server) = call.whidraSession()
         val form = call.receiveMultipart()
         val binary = form.readAllParts().filterIsInstance<PartData.FileItem>()
             .firstOrNull() ?: throw WhidraException("Upload binary not found")
@@ -52,7 +69,7 @@ fun Route.binaries() {
             }
 
 
-            val project = session.openProject(it.project, false)
+            val project = server.projectData(it.project, false)
             val program = withContext(Dispatchers.IO) {
                 AutoImporter.importByUsingBestGuess(
                     file,

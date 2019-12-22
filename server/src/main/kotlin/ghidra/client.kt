@@ -28,12 +28,10 @@ import ghidra.framework.remote.RepositoryServerHandle
 import ghidra.net.ApplicationKeyManagerFactory
 import ghidra.program.model.listing.Program
 import ghidra.util.task.TaskMonitor
-import session.WhidraSession
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.HashSet
 import javax.security.auth.Subject
-import javax.security.auth.callback.ChoiceCallback
 import javax.security.auth.callback.NameCallback
 import javax.security.auth.callback.PasswordCallback
 
@@ -220,14 +218,14 @@ object WhidraClient {
 }
 
 
-fun WhidraSession.editProgram(
+fun RepositoryServerAdapter.editProgram(
     repository: String,
     binary: String,
     msg: String,
     monitor: TaskMonitor,
     block: (Program) -> Unit
 ): Program {
-    val project = this.openProject(repository, false)
+    val project = this.projectData(repository, false)
     val file = project.rootFolder.getFile(binary)
 
     file.checkout(false, monitor)
@@ -248,14 +246,14 @@ class CheckinWithComment(val cmt: String) : CheckinHandler {
     override fun keepCheckedOut() = false
 }
 
-fun WhidraSession.openProject(repoName: String, readOnly: Boolean): ProjectData {
-    val repo = GhidraURLConnection(URL("ghidra", WhidraClient.host, "/$repoName"), WhidraProtocolHandler(this.server))
+fun RepositoryServerAdapter.projectData(repoName: String, readOnly: Boolean): ProjectData {
+    val repo = GhidraURLConnection(URL("ghidra", WhidraClient.host, "/$repoName"), WhidraProtocolHandler(this))
     repo.isReadOnly = readOnly
     return repo.projectData ?: throw Exception("Project data not found")
 }
 
-fun WhidraSession.openProgram(repository: String, binary: String): Program {
-    val project = this.openProject(repository, true)
+fun RepositoryServerAdapter.program(repository: String, binary: String): Program {
+    val project = this.projectData(repository, true)
     val file = project.rootFolder.getFile(binary)
     val program = file.getDomainObject(this, true, true, TaskMonitor.DUMMY) as Program
     return program
@@ -269,7 +267,7 @@ class WhidraProtocolHandler(val rsa: RepositoryServerAdapter) : GhidraProtocolHa
 
     override fun getConnector(ghidraUrl: URL): GhidraProtocolConnector {
         val protocol = ghidraUrl.protocol
-        return if (protocol != null) {
+        if (protocol != null) {
             return WhidraProtocolConnector(rsa, ghidraUrl)
         } else {
             throw MalformedURLException("Unsupported URL form for ghidra protocol: " + ghidraUrl.toExternalForm())

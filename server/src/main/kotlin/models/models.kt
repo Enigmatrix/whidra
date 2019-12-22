@@ -4,6 +4,7 @@ data class Project(val name: String, val binaries: List<Binary>)
 
 data class Binary(val name: String)
 
+data class Function(val name: String, val signature: String, val addr: Long, val inline: Boolean, val thunk: Boolean, val external: Boolean)
 
 sealed class Event(val kind: String) {
     object Indeterminate : Event("indeterminate")
