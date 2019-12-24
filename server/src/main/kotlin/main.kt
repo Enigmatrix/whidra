@@ -10,7 +10,6 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.slf4j.event.Level
 import ghidra.WhidraClient
-import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.send
 import io.ktor.locations.Locations
 
@@ -19,9 +18,7 @@ import io.ktor.util.InternalAPI
 import io.ktor.util.KtorExperimentalAPI
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
-import javafx.application.Application.launch
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.channels.mapNotNull
 import models.WsOut
 import routes.binaries
 import routes.projects
@@ -69,7 +66,6 @@ fun Application.module() {
             binaries()
 
             webSocket("event-stream") {
-
                 try {
                     val (_, taskMgr) = call.whidraSession()
 

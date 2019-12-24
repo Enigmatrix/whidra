@@ -1,8 +1,19 @@
 <template>
   <div id="app" class="bg-gray-800 text-gray-300 min-h-screen flex flex-col">
+    <NavBar />
     <router-view />
   </div>
 </template>
+
+<script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
+import NavBar from "@/components/NavBar.vue";
+
+@Component({
+  components: { NavBar }
+})
+export default class App extends Vue {}
+</script>
 
 <style lang="stylus">
 #app

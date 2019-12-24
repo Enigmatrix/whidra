@@ -19,12 +19,23 @@ class Users {
     @Location("/login")
     data class Login(val username: String, val password: String)
 
+    @Location("/info")
+    class Info()
+
     @Location("/logout")
     class Logout()
 }
 
 fun Route.users() {
-    post<Users.Login>() {
+
+    get<Users.Info> {
+        val sess = call.sessions.get<WhidraUser>()
+            ?: return@get call.respond(HttpStatusCode.Unauthorized)
+        
+        call.respond(models.User(sess.user))
+    }
+
+    post<Users.Login> {
         if (call.sessions.get<WhidraUser>() != null) {
             throw WhidraException("Pre-existing session found")
         }
@@ -42,7 +53,7 @@ fun Route.users() {
         }
     }
 
-    post<Users.Logout>() {
+    post<Users.Logout> {
         if (call.sessions.get<WhidraUser>() == null) {
             throw WhidraException("No pre-existing session found")
         }

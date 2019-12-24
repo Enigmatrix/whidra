@@ -10,9 +10,16 @@ import {
   faUserSecret,
   faProjectDiagram,
   faFileCode,
-  faExclamationTriangle
+  faExclamationTriangle,
+  faCog
 } from "@fortawesome/free-solid-svg-icons";
-library.add(faUserSecret, faProjectDiagram, faFileCode, faExclamationTriangle);
+library.add(
+  faUserSecret,
+  faProjectDiagram,
+  faFileCode,
+  faExclamationTriangle,
+  faCog
+);
 
 Vue.config.productionTip = false;
 
