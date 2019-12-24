@@ -45,7 +45,7 @@ fun Route.binaries() {
 
         val program = server.program(func.binary.project, func.binary.name)
         call.respond(program.functionManager.getFunctions(true).map {
-            Function(it.name, it.signature.prototypeString, it.entryPoint.offset,  it.isInline, it.isThunk, it.isExternal)
+            Function(it.name, it.signature.getPrototypeString(true), it.entryPoint.offset,  it.isInline, it.isThunk, it.isExternal)
         })
     }
 

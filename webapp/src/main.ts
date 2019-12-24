@@ -9,9 +9,10 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faUserSecret,
   faProjectDiagram,
-  faFileCode
+  faFileCode,
+  faExclamationTriangle
 } from "@fortawesome/free-solid-svg-icons";
-library.add(faUserSecret, faProjectDiagram, faFileCode);
+library.add(faUserSecret, faProjectDiagram, faFileCode, faExclamationTriangle);
 
 Vue.config.productionTip = false;
 

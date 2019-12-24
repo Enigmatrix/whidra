@@ -74,7 +74,6 @@
 
 <script>
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-//import HelloWorld from "@/components/HelloWorld.vue";
 
 export default {
   components: {

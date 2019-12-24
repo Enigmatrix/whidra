@@ -12,6 +12,7 @@ import io.ktor.sessions.sessions
 import io.ktor.sessions.set
 import session.WhidraUser
 import utils.WhidraException
+import javax.security.auth.login.FailedLoginException
 
 @Location("/users")
 class Users {
@@ -28,11 +29,14 @@ fun Route.users() {
             throw WhidraException("Pre-existing session found")
         }
 
-        val rsa = WhidraClient.login(it.username, it.password)
+        val rsa = try {
+            WhidraClient.login(it.username, it.password)
+        } catch (e: FailedLoginException) {
+            null
+        }
         if (rsa == null) {
             call.respond(HttpStatusCode.Unauthorized)
-        }
-        else {
+        } else {
             call.sessions.set(WhidraUser(it.username, it.password))
             call.respond(HttpStatusCode.OK)
         }
