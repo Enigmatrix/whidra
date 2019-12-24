@@ -1,5 +1,5 @@
 <template>
-  <div class="home flex flex-col">
+  <div class="flex flex-col">
     <nav class="bg-gray-900 flex flex-1 p-2 shadow-md items-center">
       <img src="favicon.ico" class="w-8 h-8 mx-2" />
       <div class="title text-2xl">whidra</div>

@@ -1,11 +1,11 @@
 import Vue from "vue";
-import Vuex from "vuex";
+import Vuex, { Store } from "vuex";
+import CodeBrowserStore from "@/store/codebrowser";
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
-  state: {},
-  mutations: {},
-  actions: {},
-  modules: {}
+export default new Store({
+  modules: {
+    CodeBrowserStore
+  }
 });
