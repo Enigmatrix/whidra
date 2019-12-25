@@ -34,7 +34,7 @@ export default class InputFile extends Vue {
   }
 
   fileSize(sz: number) {
-    const prefixes = ['gb', 'mb', 'kb', 'b']
+    const prefixes = ['b', 'kb', 'mb', 'gb']
     for (const pre of prefixes) {
       const nsz = sz/1024;
       if (nsz < 10) {
