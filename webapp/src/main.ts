@@ -4,6 +4,8 @@ import "./registerServiceWorker";
 import router from "./router";
 import store from "./store";
 import "./assets/tailwind.css";
+import VModal from 'vue-js-modal'
+Vue.use(VModal)
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
@@ -11,14 +13,22 @@ import {
   faProjectDiagram,
   faFileCode,
   faExclamationTriangle,
-  faCog
+  faCog,
+  faUpload,
+  faPlus,
+  faBars,
+  faHome
 } from "@fortawesome/free-solid-svg-icons";
 library.add(
   faUserSecret,
   faProjectDiagram,
   faFileCode,
   faExclamationTriangle,
-  faCog
+  faCog,
+  faUpload,
+  faPlus,
+  faBars,
+  faHome
 );
 
 Vue.config.productionTip = false;
