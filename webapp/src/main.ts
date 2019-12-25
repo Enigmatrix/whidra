@@ -4,8 +4,8 @@ import "./registerServiceWorker";
 import router from "./router";
 import store from "./store";
 import "./assets/tailwind.css";
-import VModal from 'vue-js-modal'
-Vue.use(VModal)
+import VModal from "vue-js-modal";
+Vue.use(VModal);
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {

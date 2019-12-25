@@ -6,7 +6,7 @@
     <img src="/favicon.ico" class="w-6 h-6 mx-2" />
     <div class="title text-2xl">whidra</div>
     <div class="flex-1"></div>
-    <slot/>
+    <slot />
   </nav>
 </template>
 
@@ -17,6 +17,5 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 @Component({
   components: { FontAwesomeIcon }
 })
-export default class NavBar extends Vue {
-}
+export default class NavBar extends Vue {}
 </script>

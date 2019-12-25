@@ -1,6 +1,11 @@
 <template>
   <div class="flex flex-col">
-    <DrawerLayout :animatable="true" :backdrop="true" @mask-click="closeSide" ref="drawer">
+    <DrawerLayout
+      :animatable="true"
+      :backdrop="true"
+      @mask-click="closeSide"
+      ref="drawer"
+    >
       <div class="drawer-content" slot="drawer">
         <SideBar>
           <slot name="side" />

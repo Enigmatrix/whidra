@@ -3,7 +3,9 @@
     <div class="flex" v-if="authenticated">
       <slot>
         <div class="flex flex-col w-full">
-          <div class="flex items-center border-b border-blue-700 w-full py-2 px-2">
+          <div
+            class="flex items-center border-b border-blue-700 w-full py-2 px-2"
+          >
             <img src="/favicon.ico" class="w-6 h-6 mx-4" />
             <div class="title text-2xl font-bold">whidra</div>
           </div>
