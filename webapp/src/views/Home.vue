@@ -32,66 +32,54 @@
       </div>
     </div>
 
-    <modal name="add-project" classes="bg-blue-900 shadow" adaptive>
-      <div class="flex flex-row h-full">
-        <form class="self-center w-full">
-          <div class="text-3xl px-4">CREATE PROJECT</div>
+    <modal name="add-project" classes="bg-blue-900 shadow" adaptive height="auto">
+      <form class="flex flex-col w-full p-4">
+        <input
+          class="block p-2 bg-blue-900 my-4 rounded border border-2 border-blue-600 w-full"
+          placeholder="project name"
+        />
 
-          <div class="px-4 w-full">
-            <input
-              class="block p-2 bg-blue-900 my-4 rounded border border-2 border-blue-600 w-full"
-              placeholder="project name"
-            />
-          </div>
-
-          <button
-            class="p-2 border border-2 border-white text-white rounded shadow px-4 float-right mx-4"
-          >CREATE</button>
-        </form>
-      </div>
+        <button
+          class="p-2 border self-end border-2 border-white text-white rounded shadow px-4"
+        >CREATE</button>
+      </form>
     </modal>
 
-    <modal name="upload-binary" classes="bg-blue-900 shadow" adaptive>
-      <div class="flex flex-row h-full">
-        <form class="self-center w-full">
-          <div class="px-4 w-full">
-            <select
-              class="block p-2 bg-blue-900 my-4 rounded border border-2 border-blue-600 w-full"
-            >
-              <option
-                v-for="proj in projects"
-                :key="proj.name"
-                :selected="proj.name === selectedProject"
-              >{{proj.name}}</option>
-            </select>
-          </div>
-          <div class="px-4 w-full">
-            <input
-              class="block p-2 bg-blue-900 my-4 rounded border border-2 border-blue-600 w-full"
-              placeholder="name"
-              name="name"
-            />
-          </div>
-          <div class="px-4 w-full flex">
-            <input
-              type="file"
-              name="file"
-              id="file"
-              class="opacity-0 w-0 h-0 overflow-hidden absolute"
-            />
-            <label
-              for="file"
-              class="w-full border border-2 border-blue-600 bg-blue-900 rounded p-2"
-            >
-              <FontAwesomeIcon icon="upload" class="h-5 w-5 mx-2" />
-              {{uploadStatus}}
-            </label>
-          </div>
-          <button
-            class="p-2 mt-4 border border-2 border-white text-white rounded shadow px-4 float-right mx-4"
-          >UPLOAD</button>
-        </form>
-      </div>
+    <modal name="upload-binary" classes="bg-blue-900 shadow" adaptive height="auto">
+      <form class="flex flex-col w-full p-4 py-6">
+        <select class="block p-2 bg-blue-900 rounded border border-2 border-blue-600 w-full">
+          <option
+            v-for="proj in projects"
+            :key="proj.name"
+            :selected="proj.name === selectedProject"
+          >
+            <div>{{proj.name}}</div>
+          </option>
+        </select>
+
+        <input
+          class="block p-2 bg-blue-900 my-4 rounded border border-2 border-blue-600 w-full"
+          placeholder="name"
+          name="name"
+        />
+
+        <div class="w-full flex">
+          <input
+            type="file"
+            name="file"
+            id="file"
+            class="opacity-0 w-0 h-0 overflow-hidden absolute"
+          />
+          <label for="file" class="w-full border border-2 border-blue-600 bg-blue-900 rounded p-2">
+            <FontAwesomeIcon icon="upload" class="h-5 w-5 mx-2" />
+            {{uploadStatus}}
+          </label>
+        </div>
+
+        <button
+          class="p-2 border border-2 border-white text-white rounded shadow px-4 float-right mt-4 self-end"
+        >UPLOAD</button>
+      </form>
     </modal>
   </Page>
 </template>
