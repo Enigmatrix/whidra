@@ -99,7 +99,7 @@ export default class Home extends Vue {
     this.$modal.show("add-project");
   }
 
-  uploadBinaryOpen(proj: string) {
+  fuploadBinaryOpen(proj: string) {
     this.selectedProject = proj;
     this.$modal.show("upload-binary");
   }
