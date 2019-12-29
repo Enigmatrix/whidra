@@ -1,18 +1,13 @@
 <template>
-  <div class="flex flex-col">
-    <DrawerLayout
-      :animatable="true"
-      :backdrop="true"
-      @mask-click="closeSide"
-      ref="drawer"
-    >
+  <div class="min-h-screen flex flex-col">
+    <DrawerLayout :animatable="true" :backdrop="true" @mask-click="closeSide" ref="drawer">
       <div class="drawer-content" slot="drawer">
         <SideBar>
           <slot name="side" />
         </SideBar>
       </div>
 
-      <div class="flex flex-col" slot="content">
+      <div class="flex flex-1 flex-col" slot="content">
         <NavBar @menu-click="openSide">
           <slot name="nav" />
         </NavBar>
@@ -42,3 +37,8 @@ export default class Page extends Vue {
   }
 }
 </script>
+
+<style lang="stylus">
+.content-wrap
+  @apply flex
+</style>
