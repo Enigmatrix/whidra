@@ -10,7 +10,11 @@
       </button>
     </div>
 
-    <div class="ml-4 mt-4 p-2 rounded" v-for="proj in projects" :key="proj.name">
+    <div
+      class="ml-4 mt-4 p-2 rounded"
+      v-for="proj in projects"
+      :key="proj.name"
+    >
       <div class="text-2xl flex items-center mb-2 text-blue-500">
         <FontAwesomeIcon icon="project-diagram" class="h-4 w-4 mr-2" />
         <div>{{ proj.name }}</div>
@@ -32,7 +36,12 @@
       </div>
     </div>
 
-    <modal name="add-project" classes="bg-blue-900 shadow" adaptive height="auto">
+    <modal
+      name="add-project"
+      classes="bg-blue-900 shadow"
+      adaptive
+      height="auto"
+    >
       <form class="flex flex-col w-full p-4">
         <input
           class="block p-2 bg-blue-900 my-4 rounded border border-2 border-blue-600 w-full"
@@ -41,13 +50,22 @@
 
         <button
           class="p-2 border self-end border-2 border-white text-white rounded shadow px-4"
-        >CREATE</button>
+        >
+          CREATE
+        </button>
       </form>
     </modal>
 
-    <modal name="upload-binary" classes="bg-blue-900 shadow" adaptive height="auto">
+    <modal
+      name="upload-binary"
+      classes="bg-blue-900 shadow"
+      adaptive
+      height="auto"
+    >
       <form class="flex flex-col w-full p-4 py-6">
-        <select class="block p-2 bg-blue-900 rounded border border-2 border-blue-600 w-full">
+        <select
+          class="block p-2 bg-blue-900 rounded border border-2 border-blue-600 w-full"
+        >
           <option
             v-for="proj in projects"
             :key="proj.name"
@@ -63,11 +81,13 @@
           name="name"
         />
 
-        <InputFile class="w-full flex"/>
+        <InputFile class="w-full flex" />
 
         <button
           class="p-2 border border-2 border-white text-white rounded shadow px-4 float-right mt-4 self-end"
-        >UPLOAD</button>
+        >
+          UPLOAD
+        </button>
       </form>
     </modal>
   </Page>

@@ -1,23 +1,30 @@
 <template>
   <Page>
-      <form class="m-auto rounded shadow bg-blue-800 p-4 font-bold" v-on:submit.prevent="login">
-        <div class="bg-orange-600 p-2 text-white text-sm font-thin" v-if="error">
-          <FontAwesomeIcon icon="exclamation-triangle" class="h-4 w-4" />
-          {{ error }}
-        </div>
-        <input
-          class="block p-2 bg-blue-900 my-4 rounded border border-2 border-blue-600"
-          placeholder="username"
-          v-model="user.username"
-        />
-        <input
-          type="password"
-          class="block p-2 bg-blue-900 my-4 rounded border border-2 border-blue-600"
-          placeholder="password"
-          v-model="user.password"
-        />
-        <button class="float-right p-2 m-2 bg-green-600 text-white rounded shadow">LOGIN</button>
-      </form>
+    <form
+      class="m-auto rounded shadow bg-blue-800 p-4 font-bold"
+      v-on:submit.prevent="login"
+    >
+      <div class="bg-orange-600 p-2 text-white text-sm font-thin" v-if="error">
+        <FontAwesomeIcon icon="exclamation-triangle" class="h-4 w-4" />
+        {{ error }}
+      </div>
+      <input
+        class="block p-2 bg-blue-900 my-4 rounded border border-2 border-blue-600"
+        placeholder="username"
+        v-model="user.username"
+      />
+      <input
+        type="password"
+        class="block p-2 bg-blue-900 my-4 rounded border border-2 border-blue-600"
+        placeholder="password"
+        v-model="user.password"
+      />
+      <button
+        class="float-right p-2 m-2 bg-green-600 text-white rounded shadow"
+      >
+        LOGIN
+      </button>
+    </form>
   </Page>
 </template>
 

@@ -1,6 +1,11 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <DrawerLayout :animatable="true" :backdrop="true" @mask-click="closeSide" ref="drawer">
+    <DrawerLayout
+      :animatable="true"
+      :backdrop="true"
+      @mask-click="closeSide"
+      ref="drawer"
+    >
       <div class="drawer-content" slot="drawer">
         <SideBar>
           <slot name="side" />
@@ -21,6 +26,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import NavBar from "@/components/NavBar.vue";
 import SideBar from "@/components/SideBar.vue";
+// @ts-ignore
 import { DrawerLayout } from "vue-drawer-layout";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
@@ -28,6 +34,10 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
   components: { NavBar, SideBar, DrawerLayout, FontAwesomeIcon }
 })
 export default class Page extends Vue {
+  public $refs!: {
+    drawer: any;
+  };
+
   closeSide() {
     this.$refs.drawer.toggle(false);
   }
