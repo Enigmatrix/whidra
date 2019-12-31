@@ -20,11 +20,12 @@ const routes = [
       import(/* webpackChunkName: "project" */ "../views/Login.vue")
   },
   {
-    path: "/browse/{project}/{binary}",
+    path: "/browse/:project/:binary",
     name: "code",
     meta: { requiresAuthentication: true },
+    props: true,
     component: () =>
-      import(/* webpackChunkName: "code" */ "../views/CodeBrowser.vue")
+      import(/* webpackChunkName: "code" */ "../views/Browse.vue")
   }
 ];
 
