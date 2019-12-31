@@ -62,7 +62,7 @@
       adaptive
       height="auto"
     >
-      <form class="flex flex-col w-full p-4 py-6">
+    <form class="flex flex-col w-full p-4 py-6" @submit.prevent="submitUploadBinary" ref="uploadBinaryForm">
         <select
           class="block p-2 bg-blue-900 rounded border border-2 border-blue-600 w-full"
         >
@@ -109,6 +109,10 @@ export default class Home extends Vue {
   public selectedProject: string | null = null;
   public uploadStatus = "choose file";
 
+  public $refs!: {
+    uploadBinaryForm: HTMLFormElement;
+  }
+
   async mounted() {
     this.projects = await axios
       .get<Project[]>("/projects/all")
@@ -119,9 +123,15 @@ export default class Home extends Vue {
     this.$modal.show("add-project");
   }
 
-  fuploadBinaryOpen(proj: string) {
+  uploadBinaryOpen(proj: string) {
     this.selectedProject = proj;
     this.$modal.show("upload-binary");
+  }
+
+  async submitUploadBinary() {
+    const dat = new FormData(this.$refs.uploadBinaryForm);
+    const name = dat.get("name");
+    await axios.post(`/${this.selectedProject}/binary/upload`, dat, { params: { name } });
   }
 }
 </script>

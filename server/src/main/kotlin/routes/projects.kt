@@ -13,22 +13,22 @@ import session.appSession
 
 @Location("/projects/{name}")
 data class Project(val name: String) {
-    @Location("/create")
-    data class Create(val project: Project)
-
     @Location("/delete")
     data class Delete(val project: Project)
 }
+
+@Location("/projects/create")
+data class CreateProject(val name: String)
 
 @Location("/projects/all")
 class AllProjects
 
 fun Route.projects() {
-    post<Project.Create> {
+    post<CreateProject> {
         val (server) = call.appSession()
 
         val project = withContext(Dispatchers.IO) {
-            server.createRepository(it.project.name)
+            server.createRepository(it.name)
         }
         call.respond(projectFrom(project))
     }
