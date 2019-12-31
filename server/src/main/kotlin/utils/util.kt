@@ -12,15 +12,10 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import models.Event
 import session.genRandomId
-import session.whidraSession
-import java.util.concurrent.ConcurrentHashMap
-
-class WhidraException(msg: String) : Exception(msg) {
-
-}
+import session.appSession
 
 suspend fun <T> PipelineContext<Unit, ApplicationCall>.task(block: suspend Task<T>.() -> T) {
-    val (_, taskMgr) = call.whidraSession()
+    val (_, taskMgr) = call.appSession()
     val task = Task(block)
 
     taskMgr.tasks.send(task)

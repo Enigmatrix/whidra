@@ -10,8 +10,10 @@ import io.ktor.sessions.clear
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
 import io.ktor.sessions.set
-import session.WhidraUser
-import utils.WhidraException
+import session.UserIdentifier
+import utils.IncorrectLoginException
+import utils.LoggedInException
+import utils.UnauthorizedException
 import javax.security.auth.login.FailedLoginException
 
 @Location("/users")
@@ -20,43 +22,38 @@ class Users {
     data class Login(val username: String, val password: String)
 
     @Location("/info")
-    class Info()
+    class Info
 
     @Location("/logout")
-    class Logout()
+    class Logout
 }
 
 fun Route.users() {
 
     get<Users.Info> {
-        val sess = call.sessions.get<WhidraUser>()
-            ?: return@get call.respond(HttpStatusCode.Unauthorized)
+        val sess = call.sessions.get<UserIdentifier>()
+            ?: throw UnauthorizedException()
         
         call.respond(models.User(sess.user))
     }
 
     post<Users.Login> {
-        if (call.sessions.get<WhidraUser>() != null) {
-            throw WhidraException("Pre-existing session found")
+        if (call.sessions.get<UserIdentifier>() != null) {
+            throw LoggedInException()
         }
 
-        val rsa = try {
+        try {
             WhidraClient.login(it.username, it.password)
         } catch (e: FailedLoginException) {
-            null
+            throw IncorrectLoginException()
         }
-        if (rsa == null) {
-            call.respond(HttpStatusCode.Unauthorized)
-        } else {
-            call.sessions.set(WhidraUser(it.username, it.password))
-            call.respond(HttpStatusCode.OK)
-        }
+
+        call.sessions.set(UserIdentifier(it.username, it.password))
+        call.respond(HttpStatusCode.OK)
     }
 
     post<Users.Logout> {
-        if (call.sessions.get<WhidraUser>() == null) {
-            throw WhidraException("No pre-existing session found")
-        }
-        call.sessions.clear<WhidraUser>()
+        call.sessions.get<UserIdentifier>() ?: throw UnauthorizedException()
+        call.sessions.clear<UserIdentifier>()
     }
 }

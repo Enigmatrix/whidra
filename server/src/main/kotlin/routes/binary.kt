@@ -18,8 +18,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import models.Binary
 import models.Function
-import session.whidraSession
-import utils.WhidraException
+import session.appSession
+import utils.FormFieldMissing
 import utils.task
 import java.io.File
 
@@ -40,8 +40,16 @@ data class UploadBinary(val project: String, val name: String)
 
 fun Route.binaries() {
 
+    get<routes.Binary.Listing> {
+
+    }
+
+    get<routes.Binary.Code> {
+
+    }
+
     get<routes.Binary.Functions> { func ->
-        val (server) = call.whidraSession()
+        val (server) = call.appSession()
 
         val program = server.program(func.binary.project, func.binary.name)
         call.respond(program.functionManager.getFunctions(true).map {
@@ -50,10 +58,10 @@ fun Route.binaries() {
     }
 
     post<UploadBinary> {
-        val (server) = call.whidraSession()
+        val (server) = call.appSession()
         val form = call.receiveMultipart()
         val binary = form.readAllParts().filterIsInstance<PartData.FileItem>()
-            .firstOrNull() ?: throw WhidraException("Upload binary not found")
+            .firstOrNull() ?: throw FormFieldMissing("binary")
 
         task<Binary> {
             val file = File("/tmp/${it.name}")
@@ -83,7 +91,7 @@ fun Route.binaries() {
             mgr.initializeOptions()
             mgr.reAnalyzeAll(null)
             mgr.startAnalysis(monitor())
-            GhidraProgramUtilities.setAnalyzedFlag(program, true);
+            GhidraProgramUtilities.setAnalyzedFlag(program, true)
             program.endTransaction(txId, true)
 
             withContext(Dispatchers.IO) {

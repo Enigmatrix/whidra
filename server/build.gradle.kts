@@ -15,6 +15,11 @@ repositories {
     maven("https://jitpack.io")
 }
 
+tasks.withType<KotlinCompile>().all {
+    kotlinOptions.freeCompilerArgs += "-Xuse-experimental=io.ktor.locations.KtorExperimentalLocationsAPI"
+    kotlinOptions.freeCompilerArgs += "-Xuse-experimental=io.ktor.util.KtorExperimentalAPI"
+}
+
 dependencies {
     implementation(kotlin("stdlib"))
 

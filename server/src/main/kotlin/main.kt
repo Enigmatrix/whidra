@@ -10,12 +10,14 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.slf4j.event.Level
 import ghidra.WhidraClient
+import io.ktor.application.call
+import io.ktor.features.StatusPages
+import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.send
 import io.ktor.locations.Locations
+import io.ktor.response.respond
 
 import io.ktor.sessions.*
-import io.ktor.util.InternalAPI
-import io.ktor.util.KtorExperimentalAPI
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
@@ -23,14 +25,13 @@ import models.WsOut
 import routes.binaries
 import routes.projects
 import routes.users
-import session.WhidraUser
-import session.whidraSession
+import session.UserIdentifier
+import session.appSession
+import utils.AppException
 import java.io.File
 
 lateinit var serializer: ObjectMapper
 
-@InternalAPI
-@KtorExperimentalAPI
 fun main() {
     WhidraClient.init()
     embeddedServer(Netty, 8080, "0.0.0.0",
@@ -39,8 +40,6 @@ fun main() {
 }
 
 
-@InternalAPI
-@KtorExperimentalAPI
 fun Application.module() {
     install(ContentNegotiation) {
         jackson { serializer = this }
@@ -50,12 +49,18 @@ fun Application.module() {
         level = Level.INFO
     }
 
+    install(StatusPages) {
+        exception<AppException> { ex ->
+            call.respond(ex.code, ex.message.orEmpty())
+        }
+    }
+
     install(Locations)
 
     install(WebSockets)
 
     install(Sessions) {
-        cookie<WhidraUser>("SESS_USER_ID",
+        cookie<UserIdentifier>("SESS_USER_ID",
             directorySessionStorage(File("/var/sessions"), cached=true))
     }
 
@@ -67,7 +72,7 @@ fun Application.module() {
 
             webSocket("event-stream") {
                 try {
-                    val (_, taskMgr) = call.whidraSession()
+                    val (_, taskMgr) = call.appSession()
 
                     for(task in taskMgr.tasks) {
                         for(event in task.events){

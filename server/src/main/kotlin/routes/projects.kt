@@ -6,8 +6,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.locations.*
 import io.ktor.response.respond
 import io.ktor.routing.Route
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import models.Binary
-import session.whidraSession
+import session.appSession
 
 @Location("/projects/{name}")
 data class Project(val name: String) {
@@ -21,24 +23,27 @@ data class Project(val name: String) {
 @Location("/projects/all")
 class AllProjects
 
-// TODO get rid of these stupid wartings proejct-wide
 fun Route.projects() {
     post<Project.Create> {
-        val (server) = call.whidraSession()
+        val (server) = call.appSession()
 
-        val project = server.createRepository(it.project.name)
+        val project = withContext(Dispatchers.IO) {
+            server.createRepository(it.project.name)
+        }
         call.respond(projectFrom(project))
     }
 
     delete<Project.Delete> {
-        val (server) = call.whidraSession()
+        val (server) = call.appSession()
 
-        server.deleteRepository(it.project.name)
+        withContext(Dispatchers.IO) {
+            server.deleteRepository(it.project.name)
+        }
         call.respond(HttpStatusCode.OK)
     }
 
     get<AllProjects> {
-        val (server) = call.whidraSession()
+        val (server) = call.appSession()
 
         call.respond(server.repositoryNames.map {
             projectFrom(server.getRepository(it))
@@ -48,10 +53,10 @@ fun Route.projects() {
 
 fun projectFrom(repo: RepositoryAdapter): models.Project {
     repo.connect()
-    val proj = models.Project(repo.name,
+    val project = models.Project(repo.name,
         binaries = repo.getItemList("/").map { Binary(it.name) })
     repo.disconnect()
-    return proj
+    return project
 }
 
 

@@ -38,11 +38,11 @@ import javax.security.auth.callback.PasswordCallback
 
 object WhidraClient {
 
-    lateinit var server: RepositoryServerAdapter
-    public const val host = "localhost"
-    public const val port = 13100
-    public const val user = "ghidra"
-    public const val defaultPassword = "changeme"
+    private lateinit var server: RepositoryServerAdapter
+    const val host = "localhost"
+    private const val port = 13100
+    private const val user = "ghidra"
+    private const val defaultPassword = "changeme"
 
     fun init() {
         if (!Application.isInitialized())
@@ -51,7 +51,7 @@ object WhidraClient {
                 HeadlessGhidraApplicationConfiguration()
             )
 
-        var pass = System.getenv("GHIDRA_PASS") ?: this.defaultPassword
+        val pass = System.getenv("GHIDRA_PASS") ?: this.defaultPassword
 
         try {
             val server = this.connect(this.user, this.defaultPassword)
@@ -63,7 +63,7 @@ object WhidraClient {
         this.server = this.connect(this.user, pass)
     }
 
-    fun connect(user: String, pass: String): RepositoryServerAdapter {
+    private fun connect(user: String, pass: String): RepositoryServerAdapter {
         ClientUtil.setClientAuthenticator(PasswordClientAuthenticator(user, pass))
         return ClientUtil.getRepositoryServer(this.host, this.port, true)
     }
@@ -193,7 +193,7 @@ object WhidraClient {
                 return  // found it
             } else if (name.startsWith(GhidraServerHandle.BIND_NAME_PREFIX)) {
                 var version = name.substring(GhidraServerHandle.BIND_NAME_PREFIX.length)
-                if (version.length == 0) {
+                if (version.isEmpty()) {
                     version = "4.3.x (or older)"
                 }
                 exc = RemoteException(
@@ -240,8 +240,8 @@ fun RepositoryServerAdapter.editProgram(
     return program
 }
 
-class CheckinWithComment(val cmt: String) : CheckinHandler {
-    override fun getComment() = this.cmt
+class CheckinWithComment(private val commentStr: String) : CheckinHandler {
+    override fun getComment() = this.commentStr
     override fun createKeepFile() = false
     override fun keepCheckedOut() = false
 }
@@ -255,12 +255,11 @@ fun RepositoryServerAdapter.projectData(repoName: String, readOnly: Boolean): Pr
 fun RepositoryServerAdapter.program(repository: String, binary: String): Program {
     val project = this.projectData(repository, true)
     val file = project.rootFolder.getFile(binary)
-    val program = file.getDomainObject(this, true, true, TaskMonitor.DUMMY) as Program
-    return program
+    return file.getDomainObject(this, true, true, TaskMonitor.DUMMY) as Program
 }
 
 
-class WhidraProtocolHandler(val rsa: RepositoryServerAdapter) : GhidraProtocolHandler() {
+class WhidraProtocolHandler(private val server: RepositoryServerAdapter) : GhidraProtocolHandler() {
     override fun isExtensionSupported(extProtocolName: String?): Boolean {
         return extProtocolName == null
     }
@@ -268,14 +267,14 @@ class WhidraProtocolHandler(val rsa: RepositoryServerAdapter) : GhidraProtocolHa
     override fun getConnector(ghidraUrl: URL): GhidraProtocolConnector {
         val protocol = ghidraUrl.protocol
         if (protocol != null) {
-            return WhidraProtocolConnector(rsa, ghidraUrl)
+            return WhidraProtocolConnector(server, ghidraUrl)
         } else {
             throw MalformedURLException("Unsupported URL form for ghidra protocol: " + ghidraUrl.toExternalForm())
         }
     }
 }
 
-class WhidraProtocolConnector(val rsa: RepositoryServerAdapter, url: URL) : GhidraProtocolConnector(url) {
+class WhidraProtocolConnector(private val server: RepositoryServerAdapter, url: URL) : GhidraProtocolConnector(url) {
     private var readOnly: Boolean = false
 
     @Throws(NotConnectedException::class)
@@ -295,7 +294,7 @@ class WhidraProtocolConnector(val rsa: RepositoryServerAdapter, url: URL) : Ghid
         this.readOnly = readOnlyAccess
         this.responseCode = 404
 
-        this.repositoryServerAdapter = rsa
+        this.repositoryServerAdapter = server
         if (this.repositoryName == null) {
             this.responseCode = 200
             return this.responseCode
