@@ -17,7 +17,10 @@ import {
   faUpload,
   faPlus,
   faBars,
-  faHome
+  faHome,
+  faCode,
+  faTerminal,
+  faList
 } from "@fortawesome/free-solid-svg-icons";
 library.add(
   faUserSecret,
@@ -28,7 +31,10 @@ library.add(
   faUpload,
   faPlus,
   faBars,
-  faHome
+  faHome,
+  faCode,
+  faTerminal,
+  faList
 );
 
 Vue.config.productionTip = false;
