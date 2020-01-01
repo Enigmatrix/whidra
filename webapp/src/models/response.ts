@@ -10,3 +10,12 @@ export interface Project {
 export interface Binary {
   name: String;
 }
+
+export interface Function {
+  name: string;
+  signature: string;
+  addr: number;
+  inline: boolean;
+  thunk: boolean;
+  global: boolean;
+}
