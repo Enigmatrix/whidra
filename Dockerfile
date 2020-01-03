@@ -56,4 +56,24 @@ ENTRYPOINT [ "sh", "-c", "(while true; do find -name '*.kt' | entr -d -r sudo ./
 # }}}
 
 # Production Image {{{
+FROM ghidra_base as ghidra-prod
+
+FROM node:13 as webapp-build
+WORKDIR /src
+COPY webapp/yarn.lock webapp/package*.json /src/
+RUN yarn
+COPY webapp/ /src/
+RUN yarn build
+
+FROM jvm as backend-build
+WORKDIR /src
+COPY server/ /src/
+RUN ./gradlew distTar --no-daemon
+
+FROM jvm as server-prod
+COPY --from=webapp-build /src/dist/ /srv/
+COPY --from=backend-build /src/build/distributions/server-1.0-SNAPSHOT.tar /tmp/
+WORKDIR /opt/server
+RUN tar xf /tmp/server-1.0-SNAPSHOT.tar
+CMD /opt/server/server-1.0-SNAPSHOT/bin/server
 # }}}

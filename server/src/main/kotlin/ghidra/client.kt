@@ -28,6 +28,7 @@ import ghidra.framework.remote.RepositoryServerHandle
 import ghidra.net.ApplicationKeyManagerFactory
 import ghidra.program.model.listing.Program
 import ghidra.util.task.TaskMonitor
+import utils.chooseInDev
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.HashSet
@@ -39,7 +40,7 @@ import javax.security.auth.callback.PasswordCallback
 object WhidraClient {
 
     private lateinit var server: RepositoryServerAdapter
-    const val host = "localhost"
+    val host = chooseInDev("localhost", "ghidra")
     private const val port = 13100
     private const val user = "ghidra"
     private const val defaultPassword = "changeme"

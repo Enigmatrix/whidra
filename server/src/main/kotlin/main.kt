@@ -20,6 +20,7 @@ import io.ktor.response.respond
 import io.ktor.sessions.*
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
+import it.lamba.ktor.features.SinglePageApplication
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import models.WsOut
 import routes.binaries
@@ -58,6 +59,11 @@ fun Application.module() {
     install(Locations)
 
     install(WebSockets)
+
+    install(SinglePageApplication){
+        folderPath = "/srv/"
+        useFiles = true
+    }
 
     install(Sessions) {
         cookie<UserIdentifier>("SESS_USER_ID",

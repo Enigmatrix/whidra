@@ -33,6 +33,8 @@ dependencies {
     implementation("io.ktor:ktor-server-sessions:$ktor_version")
 
     implementation("ch.qos.logback:logback-classic:1.2.3")
+
+    implementation("com.github.lamba92", "ktor-spa", "1.1.4")
 }
 
 application {

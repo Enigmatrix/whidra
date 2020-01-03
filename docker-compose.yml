@@ -1,4 +1,21 @@
 version: '3.6'
 
 services:
-  main:
+  ghidra:
+    build:
+      context: .
+      target: ghidra-prod
+    ports: 
+      - "13100:13100"
+      - "13101:13101"
+      - "13102:13102"
+  server:
+    build:
+      context: .
+      target: server-prod
+    environment:
+      - MODE=production
+    depends_on:
+      - ghidra
+    ports: 
+      - "8080:8080"

@@ -14,6 +14,11 @@ import models.Event
 import session.genRandomId
 import session.appSession
 
+fun<T> chooseInDev(inDev: T, notInDev: T): T {
+    val isDev = (System.getenv("MODE") ?: "dev") == "dev"
+    return if (isDev) { inDev } else { notInDev }
+}
+
 suspend fun <T> PipelineContext<Unit, ApplicationCall>.task(block: suspend Task<T>.() -> T) {
     val (_, taskMgr) = call.appSession()
     val task = Task(block)
