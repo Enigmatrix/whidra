@@ -34,7 +34,7 @@
           <div class="w-2"></div>
           <div>CODE</div>
         </div>
-        <div>{{ project }}/{{ binary }}</div>
+        <Code :syntax-tree="current && current.syntaxTree" />
       </VTab>
       <VTab title="asm">
         <div slot="title" class="flex flex-row justify-center">
@@ -66,11 +66,12 @@ import Page from "@/components/Page.vue";
 import { Function } from "@/models/response";
 import { namespace } from "vuex-class";
 import { CurrentFunctionDetail } from "@/store/browse";
+import Code from "@/components/Code.vue";
 
 const BrowseStore = namespace("BrowseStore");
 
 @Component({
-  components: { FontAwesomeIcon, Page, VueTabs, VTab }
+  components: {Code, FontAwesomeIcon, Page, VueTabs, VTab }
 })
 export default class Browse extends Vue {
   @Prop({ required: true })
