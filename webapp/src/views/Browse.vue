@@ -10,11 +10,20 @@
       </div>
     </div>
 
-    <div slot="side">
-      <div v-for="fn in functions" :key="fn.address">
-        <div>{{ fn.name }}</div>
-        <div>{{ fn.signature }}</div>
-        <div>{{ fn.addresss }}</div>
+    <div slot="side" class="w-full">
+      <div
+        v-for="fn in normalFunctions"
+        :key="fn.address"
+        @click="selectFunction(fn)"
+        class="flex border-t border-blue-700 px-2 py-1"
+        :class="{ 'bg-blue-700': current && fn === current.function }"
+      >
+        <div>
+          <div class="font-bold">{{ fn.name }}</div>
+          <div class="ml-2 text-sm">{{ fn.signature }}</div>
+        </div>
+        <div class="flex-1"></div>
+        <div class="self-center">{{ fn.addr }}</div>
       </div>
     </div>
 
@@ -55,7 +64,10 @@ import { VueTabs, VTab } from "vue-nav-tabs";
 import "vue-nav-tabs/themes/vue-tabs.css";
 import Page from "@/components/Page.vue";
 import { Function } from "@/models/response";
-import axios from "../axios";
+import { namespace } from "vuex-class";
+import { CurrentFunctionDetail } from "@/store/browse";
+
+const BrowseStore = namespace("BrowseStore");
 
 @Component({
   components: { FontAwesomeIcon, Page, VueTabs, VTab }
@@ -66,12 +78,23 @@ export default class Browse extends Vue {
   @Prop({ required: true })
   public binary!: string;
 
-  public functions: Function[] | null = null;
+  @BrowseStore.Getter
+  public normalFunctions!: Function[];
+
+  @BrowseStore.Getter
+  public thunkedFunctions!: Function[];
+
+  @BrowseStore.State
+  public current!: CurrentFunctionDetail | null;
+
+  @BrowseStore.Action
+  public load!: (binary: { project: string; binary: string }) => Promise<void>;
+
+  @BrowseStore.Action
+  public selectFunction!: (func: Function) => Promise<void>;
 
   async mounted() {
-    this.functions = await axios
-      .get<Function[]>(`${this.project}/binary/${this.binary}/functions`)
-      .then(x => x.data);
+    await this.load({ project: this.project, binary: this.binary });
   }
 }
 </script>

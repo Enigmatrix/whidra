@@ -14,7 +14,7 @@ export interface Binary {
 export interface Function {
   name: string;
   signature: string;
-  addr: number;
+  addr: string;
   inline: boolean;
   thunk: boolean;
   global: boolean;

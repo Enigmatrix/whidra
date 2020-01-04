@@ -1,6 +1,6 @@
 <template>
-  <nav class="flex flex-col bg-blue-900 h-full min-h-screen shadow-lg">
-    <div class="flex" v-if="authenticated">
+  <nav class="bg-blue-900 h-full min-h-screen shadow-lg">
+    <div class="flex flex-col" v-if="authenticated">
       <slot>
         <div class="flex flex-col w-full">
           <div
@@ -20,8 +20,9 @@
           </a>
         </div>
       </slot>
+      <div class="flex-1"></div>
       <button
-        class="px-4 py-2 border-t border-blue-700 text-gray-100 flex items-center fixed bottom-0 w-full"
+        class="px-4 py-2 border-t border-blue-700 text-gray-100 flex items-center"
       >
         <FontAwesomeIcon icon="cog" class="mr-2 h-6 w-6 fa-w-20" />
         <div class="text-lg">{{ userInfo.name }}</div>
@@ -50,3 +51,9 @@ export default class SideBar extends Vue {
   public userInfo!: UserInfo;
 }
 </script>
+
+<style lang="stylus">
+.drawer-wrap
+  overflow-y auto
+  overflow-x hidden
+</style>
