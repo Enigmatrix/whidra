@@ -1,5 +1,8 @@
 package ghidra
 
+import ghidra.app.decompiler.DecompInterface
+import ghidra.app.decompiler.DecompileProcess
+import ghidra.app.decompiler.LimitedByteBuffer
 import ghidra.framework.HeadlessGhidraApplicationConfiguration
 import ghidra.framework.Application
 import ghidra.framework.client.ClientUtil
@@ -27,8 +30,10 @@ import ghidra.framework.remote.RMIServerPortFactory
 import ghidra.framework.remote.RepositoryServerHandle
 import ghidra.net.ApplicationKeyManagerFactory
 import ghidra.program.model.listing.Program
+import ghidra.program.model.pcode.Varnode
 import ghidra.util.task.TaskMonitor
 import utils.chooseInDev
+import java.io.InputStream
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.HashSet
@@ -327,3 +332,39 @@ class WhidraProtocolConnector(private val server: RepositoryServerAdapter, url: 
     }
 
 }
+
+class DecompilerXML : DecompInterface() {
+    fun decompileFunctionXML(func: ghidra.program.model.listing.Function, timeoutSecs: Int, monitor: TaskMonitor): InputStream? {
+        decompileMessage = ""
+        var res: LimitedByteBuffer? = null
+
+        if (monitor.isCancelled) return null;
+        if (program == null) return null;
+        monitor.addCancelledListener(monitorListener)
+
+        try {
+            val funcEntry = func.entryPoint;
+            decompCallback.setFunction(func, funcEntry, null)
+            val addrString = Varnode.buildXMLAddress(funcEntry)
+            verifyProcess()
+            res = decompProcess.sendCommand1ParamTimeout("decompileAt", addrString.toString(), timeoutSecs)
+            decompileMessage = decompCallback.nativeMessage
+        }
+        catch (ex: java.lang.Exception) {
+            decompileMessage = "Exception while decompiling ${func.entryPoint}: ${ex.message}"
+        }
+        finally{
+            monitor.removeCancelledListener(monitorListener);
+        }
+
+        val processState = if (decompProcess != null) {
+            if(DecompileProcess.DisposeState.NOT_DISPOSED == decompProcess.disposeState)
+                flushCache()
+            decompProcess.disposeState
+        }
+        else { DecompileProcess.DisposeState.DISPOSED_ON_CANCEL }
+
+        return res?.inputStream;
+    }
+}
+

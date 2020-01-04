@@ -1,59 +1,103 @@
 package routes
 
+import ghidra.DecompilerXML
+import ghidra.app.decompiler.ClangBreak
 import ghidra.app.plugin.core.analysis.AutoAnalysisManager
 import ghidra.app.util.importer.AutoImporter
 import ghidra.app.util.importer.MessageLog
+import ghidra.editProgram
 import ghidra.program
+import ghidra.program.flatapi.FlatProgramAPI
+import ghidra.program.model.address.Address
+import ghidra.program.model.listing.Program
 import ghidra.projectData
 import ghidra.program.util.GhidraProgramUtilities
+import ghidra.util.task.TaskMonitor
+import io.ktor.application.ApplicationCall
 import io.ktor.application.call
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.readAllParts
 import io.ktor.http.content.streamProvider
 import io.ktor.locations.*
 import io.ktor.request.receiveMultipart
+import io.ktor.response.defaultTextContentType
 import io.ktor.response.respond
+import io.ktor.response.respondOutputStream
 import io.ktor.routing.Route
+import io.ktor.util.pipeline.PipelineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import models.Binary
 import models.Function
 import session.appSession
+import utils.AppException
 import utils.FormFieldMissing
 import utils.task
 import java.io.File
 
 @Location("/{project}/binary/{name}")
-data class Binary(val project: String, val name: String) {
+open class Binary(val project: String, val name: String) {
     @Location("/functions")
-    data class Functions(val binary: routes.Binary)
+    class Functions(private val binary: routes.Binary): routes.Binary(binary)
 
     @Location("/code")
-    data class Code(val binary: routes.Binary, val addr: String)
+    class Code(private val binary: routes.Binary, val addr: String): routes.Binary(binary)
 
     @Location("/listing")
-    data class Listing(val binary: routes.Binary, val addr: String, val len: Int)
+    class Listing(private val binary: routes.Binary, val addr: String, val len: Int): routes.Binary(binary)
+
+    protected constructor(other: routes.Binary) : this(other.project, other.name)
 }
 
 @Location("/{project}/binary/upload")
 data class UploadBinary(val project: String, val name: String)
 
+suspend fun <T: routes.Binary> PipelineContext<Unit, ApplicationCall>.program(bin: T, msg: String, block: Program.() -> Unit) {
+    val (server) = call.appSession();
+    task<Unit> {
+        server.editProgram(bin.project, bin.name, msg, monitor(), block)
+    }
+}
+
 fun Route.binaries() {
 
     get<routes.Binary.Listing> {
-
+        val (server) = call.appSession()
+        val program = server.program(it.project, it.name)
+        val api = FlatProgramAPI(program)
+        val iter = program.listing.getCodeUnits(api.toAddr(it.addr), true)
+        call.respond(iter.take(it.len).map { it.mnemonicString })
     }
 
     get<routes.Binary.Code> {
+        val (server) = call.appSession()
+        val program = server.program(it.project, it.name)
+        val api = FlatProgramAPI(program)
+
+        val decompiler = DecompilerXML()
+        decompiler.openProgram(program)
+
+        val stream = decompiler.decompileFunctionXML(api.getFunctionContaining(api.toAddr(it.addr)),
+                -1, TaskMonitor.DUMMY)
+                ?: throw AppException("Decompile output empty", HttpStatusCode.BadRequest)
+
+        call.respondOutputStream(ContentType.parse("text/xml"),
+                producer = {
+                    stream.transferTo(this)
+                    decompiler.dispose()
+                })
 
     }
 
     get<routes.Binary.Functions> { func ->
         val (server) = call.appSession()
 
-        val program = server.program(func.binary.project, func.binary.name)
+        val program = server.program(func.project, func.name)
         call.respond(program.functionManager.getFunctions(true).map {
-            Function(it.name, it.signature.getPrototypeString(true), it.entryPoint.offset,  it.isInline, it.isThunk, it.isExternal)
+            Function(it.name, it.signature.getPrototypeString(true),
+                    it.entryPoint.toString(true), it.isInline, it.isThunk, it.isExternal)
         })
     }
 
@@ -61,11 +105,11 @@ fun Route.binaries() {
         val (server) = call.appSession()
         val form = call.receiveMultipart()
         val binary = form.readAllParts().filterIsInstance<PartData.FileItem>()
-            .firstOrNull() ?: throw FormFieldMissing("binary")
+                .firstOrNull() ?: throw FormFieldMissing("binary")
 
         task<Binary> {
             val file = File("/tmp/${it.name}")
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 file.createNewFile()
             }
 
@@ -80,9 +124,9 @@ fun Route.binaries() {
             val project = server.projectData(it.project, false)
             val program = withContext(Dispatchers.IO) {
                 AutoImporter.importByUsingBestGuess(
-                    file,
-                    project.rootFolder,
-                    this, MessageLog(), monitor()
+                        file,
+                        project.rootFolder,
+                        this, MessageLog(), monitor()
                 )
             }
 
