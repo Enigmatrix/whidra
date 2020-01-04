@@ -31,10 +31,10 @@ fun startAppSession(user: String, pass: String): ApplicationSession {
 }
 
 // TODO frontend needs to make generate its own session id
-fun ApplicationCall.appSession(): ApplicationSession {
-    val sessid = request.headers[SESS_NAME] ?: throw AppException("No session header found!", HttpStatusCode.BadRequest)
+fun ApplicationCall.appSession(id: String? = null): ApplicationSession {
+    val sessid = id ?: request.headers[SESS_NAME]
+        ?: throw AppException("No session header found!", HttpStatusCode.BadRequest)
     val user = sessions.get<UserIdentifier>() ?: throw UnauthorizedException()
-    response.header(SESS_NAME, sessid)
     return cache.get(sessid) {
         startAppSession(user.user, user.pass)
     }

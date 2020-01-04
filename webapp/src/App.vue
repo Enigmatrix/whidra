@@ -1,15 +1,17 @@
 <template>
   <div id="app" class="bg-gray-800 text-gray-300">
     <router-view />
+    <NotificationArea />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import NavBar from "@/components/NavBar.vue";
+import NotificationArea from "@/components/NotificationArea.vue";
 
 @Component({
-  components: { NavBar }
+  components: { NotificationArea, NavBar }
 })
 export default class App extends Vue {}
 </script>

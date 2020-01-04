@@ -8,3 +8,5 @@ export function genRandomId(length: number) {
   }
   return result;
 }
+
+export const SESS_ID = genRandomId(32);

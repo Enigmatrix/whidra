@@ -2,17 +2,19 @@
   <Page>
     <div slot="nav">
       <div class="text-lg">
-        <a href="/" class="text-blue-500">{{project}}</a>
+        <a href="/" class="text-blue-500">{{ project }}</a>
         <span class="mx-1">/</span>
-        <a :href="`/browse/${project}/${binary}`" class="text-blue-500">{{binary}}</a>
+        <a :href="`/browse/${project}/${binary}`" class="text-blue-500">{{
+          binary
+        }}</a>
       </div>
     </div>
 
     <div slot="side">
       <div v-for="fn in functions" :key="fn.address">
-        <div>{{fn.name}}</div>
-        <div>{{fn.signature}}</div>
-        <div>{{fn.addresss}}</div>
+        <div>{{ fn.name }}</div>
+        <div>{{ fn.signature }}</div>
+        <div>{{ fn.addresss }}</div>
       </div>
     </div>
 
@@ -23,7 +25,7 @@
           <div class="w-2"></div>
           <div>CODE</div>
         </div>
-        <div>{{project}}/{{binary}}</div>
+        <div>{{ project }}/{{ binary }}</div>
       </VTab>
       <VTab title="asm">
         <div slot="title" class="flex flex-row justify-center">
@@ -53,7 +55,7 @@ import { VueTabs, VTab } from "vue-nav-tabs";
 import "vue-nav-tabs/themes/vue-tabs.css";
 import Page from "@/components/Page.vue";
 import { Function } from "@/models/response";
-import axios from '../axios';
+import axios from "../axios";
 
 @Component({
   components: { FontAwesomeIcon, Page, VueTabs, VTab }
@@ -64,11 +66,12 @@ export default class Browse extends Vue {
   @Prop({ required: true })
   public binary!: string;
 
-  public functions: Function[]|null = null;
+  public functions: Function[] | null = null;
 
   async mounted() {
     this.functions = await axios
-      .get<Function[]>(`${this.project}/binary/${this.binary}/functions`).then(x => x.data);
+      .get<Function[]>(`${this.project}/binary/${this.binary}/functions`)
+      .then(x => x.data);
   }
 }
 </script>

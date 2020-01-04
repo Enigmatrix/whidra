@@ -12,9 +12,9 @@ import org.slf4j.event.Level
 import ghidra.WhidraClient
 import io.ktor.application.call
 import io.ktor.features.StatusPages
-import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.send
 import io.ktor.locations.Locations
+import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 
 import io.ktor.sessions.*
@@ -76,13 +76,13 @@ fun Application.module() {
             projects()
             binaries()
 
-            webSocket("event-stream") {
+            webSocket("event-stream/{id}") {
                 try {
-                    val (_, taskMgr) = call.appSession()
+                    val (_, taskMgr) = call.appSession(call.parameters["id"])
 
                     for(task in taskMgr.tasks) {
                         for(event in task.events){
-                            send(serializer.writeValueAsString(WsOut.Progress(task.id, event)))
+                            send(serializer.writeValueAsString(WsOut.TaskProgress(task.id, event)))
                         }
                     }
                 }

@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
-import models.Event
+import models.TaskEvent
 import session.genRandomId
 import session.appSession
 
@@ -37,7 +37,7 @@ class TaskManager {
 }
 
 class Task<T>(val block: suspend Task<T>.() -> T) {
-    val events = Channel<Event>()
+    val events = Channel<TaskEvent>()
     val id = genRandomId()
 
     fun monitor(): TaskMonitor {
@@ -46,7 +46,7 @@ class Task<T>(val block: suspend Task<T>.() -> T) {
 
     suspend fun execute() {
         val result = block()
-        events.offer(Event.Completed(result))
+        events.offer(TaskEvent.Completed(result))
         events.close()
     }
 
@@ -60,16 +60,16 @@ class Task<T>(val block: suspend Task<T>.() -> T) {
 
         override fun setMessage(msg: String?) {
             if(msg != null)
-                task.events.offer(Event.Message(msg))
+                task.events.offer(TaskEvent.Message(msg))
         }
 
         override fun setProgress(value: Long) {
-            task.events.offer(Event.Progress(value, max))
+            task.events.offer(TaskEvent.Progress(value, max))
         }
 
         override fun setIndeterminate(indeterminate: Boolean) {
             if(indeterminate)
-                task.events.offer(Event.Indeterminate)
+                task.events.offer(TaskEvent.Indeterminate)
         }
     }
 }
