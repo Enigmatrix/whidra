@@ -42,10 +42,13 @@
       adaptive
       height="auto"
     >
-      <form class="flex flex-col w-full p-4">
+      <form class="flex flex-col w-full p-4"
+        @submit.prevent="submitAddProject"
+        ref="addProjectForm"
+      >
         <input
           class="block p-2 bg-blue-900 my-4 rounded border border-2 border-blue-600 w-full"
-          placeholder="project name"
+          placeholder="project name" name="name"
         />
 
         <button
@@ -111,10 +114,10 @@ import axios from "@/axios";
 export default class Home extends Vue {
   public projects: Project[] | null = null;
   public selectedProject: string | null = null;
-  public uploadStatus = "choose file";
 
   public $refs!: {
     uploadBinaryForm: HTMLFormElement;
+    addProjectForm: HTMLFormElement;
   };
 
   async mounted() {
@@ -136,6 +139,14 @@ export default class Home extends Vue {
     const dat = new FormData(this.$refs.uploadBinaryForm);
     const name = dat.get("name");
     await axios.post(`/${this.selectedProject}/binary/upload`, dat, {
+      params: { name }
+    });
+  }
+
+  async submitAddProject() {
+    const dat = new FormData(this.$refs.addProjectForm);
+    const name = dat.get("name");
+    await axios.post(`/projects/create`, undefined, {
       params: { name }
     });
   }
