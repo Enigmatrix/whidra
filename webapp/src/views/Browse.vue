@@ -27,7 +27,7 @@
       </div>
     </div>
 
-    <VueTabs>
+    <VueTabs class="flex-1 flex flex-col max-h-full">
       <VTab title="code">
         <div slot="title" class="flex flex-row justify-center">
           <FontAwesomeIcon icon="code" class="self-center" />
@@ -71,7 +71,7 @@ import Code from "@/components/Code.vue";
 const BrowseStore = namespace("BrowseStore");
 
 @Component({
-  components: {Code, FontAwesomeIcon, Page, VueTabs, VTab }
+  components: { Code, FontAwesomeIcon, Page, VueTabs, VTab }
 })
 export default class Browse extends Vue {
   @Prop({ required: true })
@@ -107,6 +107,10 @@ export default class Browse extends Vue {
 .tab
   @apply flex-1 text-center
   @apply bg-gray-900 text-gray-300
+
+.tab-content
+  @apply overflow-auto
+  min-height 0
 
 .vue-tabs .nav-tabs > li.active > a
 .vue-tabs .nav-tabs > li.active > a:hover

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col">
+  <div class="min-h-screen flex flex-col ">
     <DrawerLayout
       :animatable="true"
       :backdrop="true"
@@ -12,7 +12,7 @@
         </SideBar>
       </div>
 
-      <div class="flex flex-1 flex-col" slot="content">
+      <div class="flex flex-1 flex-col max-w-full" slot="content">
         <NavBar @menu-click="openSide">
           <slot name="nav" />
         </NavBar>
