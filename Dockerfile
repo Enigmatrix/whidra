@@ -67,6 +67,7 @@ RUN yarn build
 
 FROM jvm as backend-build
 WORKDIR /src
+COPY --from=ghidra_base /opt/ghidra/ghidra.jar ghidra.jar
 COPY server/ /src/
 RUN ./gradlew distTar --no-daemon
 
