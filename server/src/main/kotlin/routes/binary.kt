@@ -1,15 +1,15 @@
 package routes
 
 import ghidra.DecompilerXML
-import ghidra.app.decompiler.ClangBreak
 import ghidra.app.plugin.core.analysis.AutoAnalysisManager
 import ghidra.app.util.importer.AutoImporter
 import ghidra.app.util.importer.MessageLog
 import ghidra.editProgram
 import ghidra.program
 import ghidra.program.flatapi.FlatProgramAPI
-import ghidra.program.model.address.Address
-import ghidra.program.model.listing.Program
+import ghidra.program.model.lang.*
+import ghidra.program.model.listing.*
+import ghidra.program.model.scalar.Scalar
 import ghidra.projectData
 import ghidra.program.util.GhidraProgramUtilities
 import ghidra.util.task.TaskMonitor
@@ -22,13 +22,13 @@ import io.ktor.http.content.readAllParts
 import io.ktor.http.content.streamProvider
 import io.ktor.locations.*
 import io.ktor.request.receiveMultipart
-import io.ktor.response.defaultTextContentType
 import io.ktor.response.respond
 import io.ktor.response.respondOutputStream
 import io.ktor.routing.Route
 import io.ktor.util.pipeline.PipelineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import models.*
 import models.Binary
 import models.Function
 import session.appSession
@@ -40,13 +40,13 @@ import java.io.File
 @Location("/{project}/binary/{name}")
 open class Binary(val project: String, val name: String) {
     @Location("/functions")
-    class Functions(private val binary: routes.Binary): routes.Binary(binary)
+    class Functions(private val binary: routes.Binary) : routes.Binary(binary)
 
     @Location("/code")
-    class Code(private val binary: routes.Binary, val addr: String): routes.Binary(binary)
+    class Code(private val binary: routes.Binary, val addr: String) : routes.Binary(binary)
 
     @Location("/listing")
-    class Listing(private val binary: routes.Binary, val addr: String, val len: Int): routes.Binary(binary)
+    class Listing(private val binary: routes.Binary, val addr: String, val len: Int) : routes.Binary(binary)
 
     protected constructor(other: routes.Binary) : this(other.project, other.name)
 }
@@ -54,12 +54,16 @@ open class Binary(val project: String, val name: String) {
 @Location("/{project}/binary/upload")
 data class UploadBinary(val project: String, val name: String)
 
-suspend fun <T: routes.Binary> PipelineContext<Unit, ApplicationCall>.program(bin: T, msg: String, block: Program.() -> Unit) {
-    val (server) = call.appSession();
+suspend fun <T : routes.Binary> PipelineContext<Unit, ApplicationCall>.program(bin: T, msg: String, block: Program.() -> Unit) {
+    val (server) = call.appSession()
     task<Unit> {
         server.editProgram(bin.project, bin.name, msg, monitor(), block)
     }
 }
+
+val formatter = CodeUnitFormat(
+        CodeUnitFormatOptions.ShowBlockName.NEVER,
+        CodeUnitFormatOptions.ShowNamespace.NEVER)
 
 fun Route.binaries() {
 
@@ -68,7 +72,41 @@ fun Route.binaries() {
         val program = server.program(it.project, it.name)
         val api = FlatProgramAPI(program)
         val iter = program.listing.getCodeUnits(api.toAddr(it.addr), true)
-        call.respond(iter.take(it.len).map { it.mnemonicString })
+
+        val fields = iter.take(it.len).map { cu ->
+
+            val comments = Comments(cu.getComment(0), cu.getComment(1), cu.getComment(2), cu.getComment(3), cu.getComment(4))
+            val addr = cu.address.toString(false)
+
+            when (cu) {
+                is Data -> {
+                    ListingField.Data(cu.dataType.displayName, formatter.getDataValueRepresentationString(cu), addr, comments)
+                }
+                is Instruction -> {
+                    val operands = (0 until cu.numOperands).map { i ->
+                        val operand = formatter.getOperandRepresentationList(cu, i)
+                        operand.map { opPart ->
+                            when (opPart) {
+                                is Char -> OpPart(opPart, OpPartType.Char)
+                                is Register -> OpPart(opPart.name.toLowerCase(), OpPartType.Register)
+                                is LabelString -> OpPart(opPart.toString(), OpPartType.Label)
+                                is VariableOffset -> OpPart(opPart.variable.name, OpPartType.Variable)
+                                is Scalar -> OpPart(opPart.toString(), OpPartType.Scalar)
+                                else -> {
+                                    println("unknown $opPart of <${opPart.javaClass}>")
+                                    OpPart(opPart, OpPartType.Unknown)
+                                }
+                            }
+                        }
+                    }
+
+                    ListingField.Instruction(cu.mnemonicString, operands, addr, comments)
+                }
+                else -> throw Exception("")
+            }
+        }
+
+        call.respond(fields)
     }
 
     get<routes.Binary.Code> {
