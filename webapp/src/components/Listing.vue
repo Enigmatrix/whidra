@@ -1,8 +1,33 @@
 <template>
-  <div>
-    {{ addr }}
-    <div v-for="(asm, i) in asms" :key="i">{{ asm }}</div>
-  </div>
+  <table class="m-1 rounded shadow listing">
+    <thead>
+      <tr>
+        <th>addr</th>
+        <th>mne</th>
+        <th>ops</th>
+        <!--<th>cmt</th>-->
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="asm in asms" :key="asm.addr">
+        <td class="pl-1 address">{{asm.addr}}</td>
+        <template v-if="asm.kind === 'data'">
+          <td class="pr-2 text-right data_type">{{asm.type}}</td>
+          <td class="data_value">{{asm.value}}</td>
+        </template>
+        <template v-else>
+          <td class="pr-2 text-right mnemonic">{{lower(asm.mnemonic)}}</td>
+          <td>
+            <pre v-for="(oper, index) in asm.operands" :key="index" class="inline-flex operand">
+              <p v-for="(op, i) in oper" :key="i" :class="{[op.type]: true}">{{op.value}}</p>
+              <p v-if="index+1 < asm.operands.length">,&nbsp;</p>
+            </pre>
+          </td>
+        </template>
+        <!--<td>{{asm.comments}}</td>-->
+      </tr>
+    </tbody>
+  </table>
 </template>
 <script lang="ts">
 import { Vue, Watch, Prop, Component } from "vue-property-decorator";
@@ -22,16 +47,19 @@ export default class Listing extends Vue {
   @BrowseStore.State
   public project!: string;
 
-  public asms: string[] = [];
+  public asms: any[] = [];
+
+  public lower(str: string) {
+    return str.toLowerCase();
+  }
 
   @Watch("addr")
-  public async addrChanged(addr: string|null) {
+  public async addrChanged(addr: string | null) {
     if (!addr) {
       return;
     }
-    this.asms = await axios.get<string[]>(
-      `${this.project}/binary/${this.binary}/listing`,
-      {
+    this.asms = await axios
+      .get<any[]>(`${this.project}/binary/${this.binary}/listing`, {
         params: { addr, len: 50 }
       })
       .then(x => x.data);
@@ -39,4 +67,32 @@ export default class Listing extends Vue {
 }
 </script>
 
-<style lang="stylus"></style>
+<style lang="stylus">
+.listing
+  font-family 'Iosevka Nerd Font'
+  background #1e1e1e
+
+.address
+  color #848484
+
+.mnemonic
+  color #569cd6
+  font-weight bold
+
+.data_type
+  color #9cdcfe
+
+.data_value
+  color #4ec9b0
+.operand > .Register
+  color #ce9178
+.operand > .Variable
+  color #9cdcfe
+.operand > .Label
+  color #4EC9B0
+.operand > .Scalar
+  color #b5cea8;
+.operand > p
+  display inline
+  font-family 'Iosevka Nerd Font'
+</style>

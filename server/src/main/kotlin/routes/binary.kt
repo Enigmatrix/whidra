@@ -135,7 +135,7 @@ fun Route.binaries() {
         val program = server.program(func.project, func.name)
         call.respond(program.functionManager.getFunctions(true).map {
             Function(it.name, it.signature.getPrototypeString(true),
-                    it.entryPoint.toString(true), it.isInline, it.isThunk, it.isExternal)
+                    it.entryPoint.toString(false), it.isInline, it.isThunk, it.isExternal)
         })
     }
 

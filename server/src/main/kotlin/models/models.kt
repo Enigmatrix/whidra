@@ -32,6 +32,6 @@ sealed class ListingField(val kind: String, val addr: String, val comments: Comm
             val type: String,
             val value: String,
             addr: String,
-            comments: Comments) : ListingField("instr", addr, comments)
+            comments: Comments) : ListingField("data", addr, comments)
 }
 

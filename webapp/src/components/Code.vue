@@ -1,6 +1,6 @@
 <template>
   <code
-    class="rounded shadow m-1 overflow-auto whitespace-pre-wrap block main-code"
+    class="block m-1 overflow-auto whitespace-pre-wrap rounded shadow main-code"
   >
     <SyntaxNode v-if="syntaxTree" :syntax="syntaxTree" />
   </code>
