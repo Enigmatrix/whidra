@@ -8,9 +8,6 @@
 <script lang="ts">
 import { Vue, Prop, Component } from "vue-property-decorator";
 import SyntaxNode from "@/components/SyntaxNode.vue";
-import { namespace } from "vuex-class";
-
-const MainStore = namespace("Main");
 
 @Component({
   components: {

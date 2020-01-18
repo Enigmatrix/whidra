@@ -42,7 +42,7 @@
           <div class="w-2"></div>
           <div>ASM</div>
         </div>
-        <div>sorry wga</div>
+        <Listing :addr="current && current.function.addr" />
       </VTab>
       <VTab title="term">
         <div slot="title" class="flex flex-row justify-center">
@@ -67,11 +67,12 @@ import { Function } from "@/models/response";
 import { namespace } from "vuex-class";
 import { CurrentFunctionDetail } from "@/store/browse";
 import Code from "@/components/Code.vue";
+import Listing from "@/components/Listing.vue";
 
 const BrowseStore = namespace("BrowseStore");
 
 @Component({
-  components: { Code, FontAwesomeIcon, Page, VueTabs, VTab }
+  components: {Listing, Code, FontAwesomeIcon, Page, VueTabs, VTab }
 })
 export default class Browse extends Vue {
   @Prop({ required: true })
