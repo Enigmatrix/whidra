@@ -1,10 +1,10 @@
 <template>
-  <table class="m-1 rounded shadow listing">
+  <table class="m-1 rounded shadow table-auto listing">
     <thead>
       <tr>
         <th>addr</th>
-        <th>mne</th>
-        <th>ops</th>
+        <th class="relative">mne</th>
+        <th class="w-full">ops</th>
         <!--<th>cmt</th>-->
       </tr>
     </thead>
@@ -13,14 +13,12 @@
         <td class="pl-1 address">{{asm.addr}}</td>
 
         <td v-if="asm.kind === 'data'" colspan="2">
-          <div class="inline-flex">
-          <div class="pr-2 data_value">{{asm.value}}</div>
-          <div class="data_type">({{asm.type}})</div>
-          </div>
+            <p class="inline pr-2 data_value">{{asm.value}}</p>
+            <p class="inline data_type">({{asm.type}})</p>
         </td>
 
         <template v-else>
-          <td class="pr-2 mnemonic">{{lower(asm.mnemonic)}}</td>
+          <td class="pr-2 mnemonic ">{{lower(asm.mnemonic)}}</td>
           <td>
             <pre v-for="(oper, index) in asm.operands" :key="index" class="inline-flex operand">
               <p v-for="(op, i) in oper" :key="i" :class="{[op.type]: true}">{{op.value}}</p>
@@ -76,6 +74,7 @@ export default class Listing extends Vue {
 .listing
   font-family 'Iosevka Nerd Font'
   background #1e1e1e
+  table-layout fixed
 
 .address
   color #848484
