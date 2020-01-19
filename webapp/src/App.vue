@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="bg-gray-800 text-gray-300">
+  <div id="app" class="text-gray-300 bg-gray-800">
     <router-view />
     <NotificationArea />
   </div>
@@ -22,5 +22,11 @@ export default class App extends Vue {}
   -webkit-font-smoothing antialiased
   -moz-osx-font-smoothing grayscale
 
+.font-code
+  font-family 'Iosevka Nerd Font', Inconsolata
+
 @import url('https://fonts.googleapis.com/css?family=PT+Sans&display=swap');
+@font-face
+  font-family "Iosevka Nerd Font"
+  src: url('/Iosevka Nerd Font Complete.ttf');
 </style>
