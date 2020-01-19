@@ -11,19 +11,17 @@
     <tbody>
       <tr v-for="asm in asms" :key="asm.addr">
         <td class="pl-1 address">{{asm.addr}}</td>
-        <template v-if="asm.kind === 'data'">
-          <td class="pr-2 text-right data_type">{{asm.type}}</td>
-          <td class="data_value">{{asm.value}}</td>
-        </template>
-        <template v-else>
-          <td class="pr-2 text-right mnemonic">{{lower(asm.mnemonic)}}</td>
-          <td>
-            <pre v-for="(oper, index) in asm.operands" :key="index" class="inline-flex operand">
-              <p v-for="(op, i) in oper" :key="i" :class="{[op.type]: true}">{{op.value}}</p>
-              <p v-if="index+1 < asm.operands.length">,&nbsp;</p>
-            </pre>
-          </td>
-        </template>
+        <td v-if="asm.kind === 'data'" class="inline-flex">
+          <div class="pr-2 data_value">{{asm.value}}</div>
+          <div class="data_type">({{asm.type}})</div>
+        </td>
+        <td v-else>
+          <div class="inline-flex pr-2 mnemonic">{{lower(asm.mnemonic)}}</div>
+          <pre v-for="(oper, index) in asm.operands" :key="index" class="inline-flex operand">
+            <p v-for="(op, i) in oper" :key="i" :class="{[op.type]: true}">{{op.value}}</p>
+            <p v-if="index+1 < asm.operands.length">,&nbsp;</p>
+          </pre>
+        </td>
         <!--<td>{{asm.comments}}</td>-->
       </tr>
     </tbody>
