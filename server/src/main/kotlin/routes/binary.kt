@@ -102,7 +102,7 @@ fun Route.binaries() {
 
                     ListingField.Instruction(cu.mnemonicString, operands, addr, comments)
                 }
-                else -> throw Exception("")
+                else -> throw Exception("neither instruction nor data!")
             }
         }
 
