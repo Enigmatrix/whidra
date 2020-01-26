@@ -20,6 +20,9 @@
 <script lang="ts">
 import { Vue, Prop, Component } from "vue-property-decorator";
 import { syntaxClassObj } from "@/util";
+import { namespace } from "vuex-class";
+
+const BrowseStore = namespace("BrowseStore");
 
 @Component({ name: "SyntaxNode" })
 export default class SyntaxNode extends Vue {
@@ -34,8 +37,13 @@ export default class SyntaxNode extends Vue {
     return new XMLSerializer().serializeToString(this.syntax);
   }
 
+  @BrowseStore.Mutation
+  public selectNode!: (e: Element) => void;
+
   public select() {
-    // TODO
+    const elem = this.syntax.parentElement;
+    if (!elem) return;
+    this.selectNode(elem);
   }
 }
 </script>

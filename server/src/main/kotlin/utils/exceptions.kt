@@ -10,6 +10,8 @@ class LoggedInException: UnauthorizedException("Already logged in.")
 
 class IncorrectLoginException: UnauthorizedException("Incorrect login details.")
 
+class BadRequest(msg: String): AppException(msg, HttpStatusCode.BadRequest)
+
 class FormFieldMissing(field: String): AppException("Field $field missing in form request.", HttpStatusCode.BadRequest)
 
 

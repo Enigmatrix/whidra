@@ -42,13 +42,15 @@
       adaptive
       height="auto"
     >
-      <form class="flex flex-col w-full p-4"
+      <form
+        class="flex flex-col w-full p-4"
         @submit.prevent="submitAddProject"
         ref="addProjectForm"
       >
         <input
           class="block p-2 bg-blue-900 my-4 rounded border border-2 border-blue-600 w-full"
-          placeholder="project name" name="name"
+          placeholder="project name"
+          name="name"
         />
 
         <button

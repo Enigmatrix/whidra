@@ -87,7 +87,11 @@ export default class NotificationArea extends Vue {
             | ProgressNotification
             | undefined;
           if (notif === undefined) {
-            Vue.set(this.notifications, wsMsg.taskId, new ProgressNotification());
+            Vue.set(
+              this.notifications,
+              wsMsg.taskId,
+              new ProgressNotification()
+            );
             notif = this.notifications[wsMsg.taskId] as ProgressNotification;
           }
           switch (wsMsg.event.kind) {

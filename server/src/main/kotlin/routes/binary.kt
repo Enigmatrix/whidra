@@ -1,16 +1,13 @@
 package routes
 
-import ghidra.DecompilerXML
+import ghidra.*
 import ghidra.app.plugin.core.analysis.AutoAnalysisManager
 import ghidra.app.util.importer.AutoImporter
 import ghidra.app.util.importer.MessageLog
-import ghidra.editProgram
-import ghidra.program
 import ghidra.program.flatapi.FlatProgramAPI
 import ghidra.program.model.lang.*
 import ghidra.program.model.listing.*
 import ghidra.program.model.scalar.Scalar
-import ghidra.projectData
 import ghidra.program.util.GhidraProgramUtilities
 import ghidra.util.task.TaskMonitor
 import io.ktor.application.ApplicationCall
@@ -33,6 +30,7 @@ import models.Binary
 import models.Function
 import session.appSession
 import utils.AppException
+import utils.BadRequest
 import utils.FormFieldMissing
 import utils.task
 import java.io.File
@@ -43,7 +41,7 @@ open class Binary(val project: String, val name: String) {
     class Functions(private val binary: routes.Binary) : routes.Binary(binary)
 
     @Location("/code")
-    class Code(private val binary: routes.Binary, val addr: String) : routes.Binary(binary)
+    class Code(private val binary: routes.Binary, val addr: String? = null, val fnName: String? = null) : routes.Binary(binary)
 
     @Location("/listing")
     class Listing(private val binary: routes.Binary, val addr: String, val len: Int) : routes.Binary(binary)
@@ -117,8 +115,9 @@ fun Route.binaries() {
         val decompiler = DecompilerXML()
         decompiler.openProgram(program)
 
-        val stream = decompiler.decompileFunctionXML(api.getFunctionContaining(api.toAddr(it.addr)),
-                -1, TaskMonitor.DUMMY)
+        val function = program.functionFrom(it.fnName, it.addr)
+
+        val stream = decompiler.decompileFunctionXML(function, -1, TaskMonitor.DUMMY)
                 ?: throw AppException("Decompile output empty", HttpStatusCode.BadRequest)
 
         call.respondOutputStream(ContentType.parse("text/xml"),

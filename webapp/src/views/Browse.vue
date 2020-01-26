@@ -53,6 +53,8 @@
         <div>sorry wga</div>
       </VTab>
     </VueTabs>
+
+    <Info />
   </Page>
 </template>
 
@@ -68,11 +70,12 @@ import { namespace } from "vuex-class";
 import { CurrentFunctionDetail } from "@/store/browse";
 import Code from "@/components/Code.vue";
 import Listing from "@/components/Listing.vue";
+import Info from "@/components/Info.vue";
 
 const BrowseStore = namespace("BrowseStore");
 
 @Component({
-  components: {Listing, Code, FontAwesomeIcon, Page, VueTabs, VTab }
+  components: { Info, Listing, Code, FontAwesomeIcon, Page, VueTabs, VTab }
 })
 export default class Browse extends Vue {
   @Prop({ required: true })
@@ -97,6 +100,10 @@ export default class Browse extends Vue {
 
   async mounted() {
     await this.load({ project: this.project, binary: this.binary });
+    const main = this.normalFunctions.find(x => x.name === "main");
+    if (main) {
+      await this.selectFunction(main);
+    }
   }
 }
 </script>

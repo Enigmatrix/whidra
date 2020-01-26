@@ -32,6 +32,7 @@ import ghidra.net.ApplicationKeyManagerFactory
 import ghidra.program.model.listing.Program
 import ghidra.program.model.pcode.Varnode
 import ghidra.util.task.TaskMonitor
+import utils.BadRequest
 import utils.chooseInDev
 import java.io.InputStream
 import java.net.MalformedURLException
@@ -331,6 +332,14 @@ class WhidraProtocolConnector(private val server: RepositoryServerAdapter, url: 
         ) else null
     }
 
+}
+
+
+fun Program.functionFrom(fnname: String?, addr: String?): ghidra.program.model.listing.Function {
+    val functions = this.listing.getFunctions(true)
+    return functions.find {
+        if (fnname != null) { it.name == fnname } else { it.entryPoint.toString(false) == addr} }
+            ?: throw BadRequest("No function found at $addr")
 }
 
 class DecompilerXML : DecompInterface() {

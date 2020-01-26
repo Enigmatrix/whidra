@@ -20,7 +20,8 @@ import {
   faHome,
   faCode,
   faTerminal,
-  faList
+  faList,
+  faExternalLinkAlt
 } from "@fortawesome/free-solid-svg-icons";
 library.add(
   faUserSecret,
@@ -34,7 +35,8 @@ library.add(
   faHome,
   faCode,
   faTerminal,
-  faList
+  faList,
+  faExternalLinkAlt
 );
 
 Vue.config.productionTip = false;
