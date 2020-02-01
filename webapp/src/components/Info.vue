@@ -15,8 +15,7 @@ import {SelectionType} from "@/store/browse";
         </span>
         <FontAwesomeIcon icon="external-link-alt" class="mx-2 text-gray-400" />
       </div>
-      <div class="flex-1 info-content p-2">
-
+      <div class="flex-1 info-content p-2 overflow-auto">
         <table v-if="isConst" class="const-vals">
           <tbody>
             <tr>
@@ -39,24 +38,33 @@ import {SelectionType} from "@/store/browse";
         </table>
 
         <div v-else-if="isFunction">
-          <Code :syntax-tree="functionSyntaxTree(selection)"></Code>
+          <Function
+            :selection="selection"
+            :binary="binary"
+            :project="project"
+          />
         </div>
       </div>
     </div>
   </div>
 </template>
 <script lang="ts">
-  import {Component, Vue} from "vue-property-decorator";
-  import {namespace} from "vuex-class";
-  import {CurrentFunctionDetail, Selection, SelectionType} from "@/store/browse";
-  import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-  import {functionXml, selectionToClassObj} from "@/util";
-  import Code from "@/components/Code.vue";
+import { Component, Vue } from "vue-property-decorator";
+import { namespace } from "vuex-class";
+import {
+  CurrentFunctionDetail,
+  Selection,
+  SelectionType
+} from "@/store/browse";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { functionXml, selectionToClassObj } from "@/util";
+import Code from "@/components/Code.vue";
+import Function from "@/components/info/Function.vue";
 
-  const BrowseStore = namespace("BrowseStore");
+const BrowseStore = namespace("BrowseStore");
 
 @Component({
-  components: { Code, FontAwesomeIcon }
+  components: { Function, Code, FontAwesomeIcon }
 })
 export default class Info extends Vue {
   @BrowseStore.State
@@ -98,18 +106,6 @@ export default class Info extends Vue {
     const address = varnode.getAttribute("offset");
     if (!address) return null;
     return parseInt(address, 16);
-  }
-
-  async functionSyntaxTree(selection: Selection) {
-    if (selection.type !== SelectionType.Function) return null;
-    const { syntaxTree } = await functionXml(
-      this.project,
-      this.binary,
-      undefined,
-      selection.name || undefined
-    );
-    window.console.log(syntaxTree)
-    return syntaxTree;
   }
 
   get isConst() {
