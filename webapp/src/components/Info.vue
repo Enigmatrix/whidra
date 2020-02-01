@@ -16,34 +16,8 @@ import {SelectionType} from "@/store/browse";
         <FontAwesomeIcon icon="external-link-alt" class="mx-2 text-gray-400" />
       </div>
       <div class="flex-1 info-content p-2 overflow-auto">
-        <table v-if="isConst" class="const-vals">
-          <tbody>
-            <tr>
-              <th>Hex:</th>
-              <td>{{ hex(constValue) }}</td>
-            </tr>
-            <tr>
-              <th>Dec:</th>
-              <td>{{ constValue }}</td>
-            </tr>
-            <tr>
-              <th>Oct:</th>
-              <td>{{ oct(constValue) }}</td>
-            </tr>
-            <tr>
-              <th>Bin:</th>
-              <td>{{ bin(constValue) }}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div v-else-if="isFunction">
-          <Function
-            :selection="selection"
-            :binary="binary"
-            :project="project"
-          />
-        </div>
+        <Const v-if="isConst" />
+        <Function v-else-if="isFunction" />
       </div>
     </div>
   </div>
@@ -57,14 +31,15 @@ import {
   SelectionType
 } from "@/store/browse";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { functionXml, selectionToClassObj } from "@/util";
+import { selectionToClassObj } from "@/util";
 import Code from "@/components/Code.vue";
 import Function from "@/components/info/Function.vue";
+import Const from "@/components/info/Const.vue";
 
 const BrowseStore = namespace("BrowseStore");
 
 @Component({
-  components: { Function, Code, FontAwesomeIcon }
+  components: { Const, Function, Code, FontAwesomeIcon }
 })
 export default class Info extends Vue {
   @BrowseStore.State
@@ -89,23 +64,6 @@ export default class Info extends Vue {
   get classObj() {
     if (!this.selection) return null;
     return selectionToClassObj(this.selection.type);
-  }
-
-  get constValue() {
-    if (
-      !this.current ||
-      !this.selection ||
-      !(this.selection.origin instanceof Element) ||
-      !this.isConst
-    )
-      return null;
-
-    const varref = this.selection.origin.getAttribute("varref");
-    const varnode = this.current.ast.querySelector(`[ref='${varref}']`);
-    if (!varnode) return null;
-    const address = varnode.getAttribute("offset");
-    if (!address) return null;
-    return parseInt(address, 16);
   }
 
   get isConst() {
@@ -145,17 +103,6 @@ export default class Info extends Vue {
     }
   }
 
-  public hex(v: number) {
-    return "0x" + v.toString(16);
-  }
-
-  public oct(v: number) {
-    return "0o" + v.toString(8);
-  }
-
-  public bin(v: number) {
-    return "0b" + v.toString(2);
-  }
 }
 </script>
 <style lang="stylus">

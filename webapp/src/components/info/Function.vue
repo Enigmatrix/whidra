@@ -6,17 +6,22 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import Code from "@/components/Code.vue";
 import { Selection, SelectionType } from "@/store/browse";
 import { functionXml } from "@/util";
+import { namespace } from "vuex-class";
+
+const BrowseStore = namespace("BrowseStore");
 
 @Component({
   components: { Code }
 })
 export default class Function extends Vue {
-  @Prop({ required: true })
-  public selection!: Selection | null;
-  @Prop({ required: true })
-  public project!: string;
-  @Prop({ required: true })
+  @BrowseStore.State
   public binary!: string;
+
+  @BrowseStore.State
+  public project!: string;
+
+  @BrowseStore.State
+  public selection!: Selection | null;
 
   public functionSyntaxTree: null | ChildNode = null;
 
