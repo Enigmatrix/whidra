@@ -5,7 +5,7 @@ import ghidra.app.plugin.core.analysis.AutoAnalysisManager
 import ghidra.app.util.importer.AutoImporter
 import ghidra.app.util.importer.MessageLog
 import ghidra.program.flatapi.FlatProgramAPI
-import ghidra.program.model.lang.*
+import ghidra.program.model.lang.Register
 import ghidra.program.model.listing.*
 import ghidra.program.model.scalar.Scalar
 import ghidra.program.util.GhidraProgramUtilities
@@ -17,7 +17,9 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.readAllParts
 import io.ktor.http.content.streamProvider
-import io.ktor.locations.*
+import io.ktor.locations.Location
+import io.ktor.locations.get
+import io.ktor.locations.post
 import io.ktor.request.receiveMultipart
 import io.ktor.response.respond
 import io.ktor.response.respondOutputStream
@@ -30,7 +32,6 @@ import models.Binary
 import models.Function
 import session.appSession
 import utils.AppException
-import utils.BadRequest
 import utils.FormFieldMissing
 import utils.task
 import java.io.File
@@ -45,6 +46,9 @@ open class Binary(val project: String, val name: String) {
 
     @Location("/listing")
     class Listing(private val binary: routes.Binary, val addr: String, val len: Int) : routes.Binary(binary)
+
+    @Location("/type")
+    class Type(private val binary: routes.Binary, val type: String): routes.Binary(binary)
 
     protected constructor(other: routes.Binary) : this(other.project, other.name)
 }
@@ -64,6 +68,14 @@ val formatter = CodeUnitFormat(
         CodeUnitFormatOptions.ShowNamespace.NEVER)
 
 fun Route.binaries() {
+
+    get<routes.Binary.Type> {
+        val (server) = call.appSession()
+        val program = server.program(it.project, it.name)
+
+        val type = program.dataTypeManager.getDataType(it.type)
+
+    }
 
     get<routes.Binary.Listing> {
         val (server) = call.appSession()
