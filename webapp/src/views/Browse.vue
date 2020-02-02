@@ -2,11 +2,16 @@
   <Page>
     <div slot="nav">
       <div class="text-lg">
-        <a href="/" class="text-blue-500">{{ project }}</a>
+        <router-link :to="{ name: 'home' }" class="text-blue-500">{{ project }}</router-link>
         <span class="mx-1">/</span>
-        <a :href="`/browse/${project}/${binary}`" class="text-blue-500">{{
-          binary
-        }}</a>
+        <router-link
+          :to="{
+            name: 'browse',
+            params: { binary, project }
+          }"
+          class="text-blue-500"
+          >{{ binary }}</router-link
+        >
       </div>
     </div>
 

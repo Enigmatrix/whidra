@@ -10,14 +10,14 @@
             <div class="title text-2xl font-bold">whidra</div>
           </div>
 
-          <a class="px-2 py-2 flex items-center" href="/">
+          <router-link class="px-2 py-2 flex items-center" :to="{ name: 'home' }">
             <FontAwesomeIcon icon="home" class="mx-4 fa-w-20 h-6 w-6" />
             <div class="text-xl">Home</div>
-          </a>
-          <a class="px-2 py-2 flex items-center" href="/admin">
+          </router-link>
+          <router-link class="px-2 py-2 flex items-center" :to="{ name: 'admin' }">
             <FontAwesomeIcon icon="user-secret" class="mx-4 fa-w-20 h-6 w-6" />
             <div class="text-xl">Admin</div>
-          </a>
+          </router-link>
         </div>
       </slot>
       <div class="flex-1"></div>

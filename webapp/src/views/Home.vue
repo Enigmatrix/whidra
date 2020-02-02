@@ -24,15 +24,18 @@
         </button>
       </div>
       <div class="px-4">
-        <a
+        <router-link
           class="text-xl flex items-center text-blue-200"
           v-for="binary in proj.binaries"
           :key="binary.name"
-          :href="`/browse/${proj.name}/${binary.name}`"
+          :to="{
+            name: 'browse',
+            params: { binary: binary.name, project: proj.name }
+          }"
         >
           <FontAwesomeIcon icon="file-code" class="h-4 w-4 mx-2" />
           {{ binary.name }}
-        </a>
+        </router-link>
       </div>
     </div>
 

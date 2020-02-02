@@ -21,7 +21,7 @@ const routes = [
   },
   {
     path: "/browse/:project/:binary",
-    name: "code",
+    name: "browse",
     meta: { requiresAuthentication: true },
     props: true,
     component: () =>
