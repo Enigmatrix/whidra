@@ -2,7 +2,9 @@
   <Page>
     <div slot="nav">
       <div class="text-lg">
-        <router-link :to="{ name: 'home' }" class="text-blue-500">{{ project }}</router-link>
+        <router-link :to="{ name: 'home' }" class="text-blue-500">{{
+          project
+        }}</router-link>
         <span class="mx-1">/</span>
         <router-link
           :to="{
@@ -19,7 +21,7 @@
       <div
         v-for="fn in normalFunctions"
         :key="fn.address"
-        @click="selectFunction(fn)"
+        @click="selectFunctionClick(fn)"
         class="flex border-t border-blue-700 px-2 py-1"
         :class="{ 'bg-blue-700': current && fn === current.function }"
       >
@@ -64,7 +66,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 // @ts-ignore
 import { VueTabs, VTab } from "vue-nav-tabs";
@@ -76,6 +78,7 @@ import { CurrentFunctionDetail } from "@/store/browse";
 import Code from "@/components/Code.vue";
 import Listing from "@/components/Listing.vue";
 import Info from "@/components/Info.vue";
+import { Route } from "vue-router";
 
 const BrowseStore = namespace("BrowseStore");
 
@@ -103,12 +106,36 @@ export default class Browse extends Vue {
   @BrowseStore.Action
   public selectFunction!: (func: Function) => Promise<void>;
 
+  public selectFunctionClick(func: Function) {
+    this.$router.push({
+      name: "browse",
+      params: { project: this.project, binary: this.binary },
+      query: { fnname: func.name }
+    });
+  }
+
+  @Watch("$route", { immediate: true })
+  async routeWatcher(to: Route, from: Route) {
+    if (to.name !== "browse") return;
+
+    let fn: Function | undefined;
+    const { fnname } = to.query;
+    if (fnname && fnname.length !== 0) {
+      fn = this.normalFunctions.find(x => x.name === fnname);
+    }
+    if (!fn) {
+      fn = this.normalFunctions.find(x => x.name === "main");
+    }
+    if (!fn) {
+      fn = this.normalFunctions[0];
+    }
+    if (fn) {
+      await this.selectFunction(fn);
+    }
+  }
+
   async mounted() {
     await this.load({ project: this.project, binary: this.binary });
-    const main = this.normalFunctions.find(x => x.name === "main");
-    if (main) {
-      await this.selectFunction(main);
-    }
   }
 }
 </script>

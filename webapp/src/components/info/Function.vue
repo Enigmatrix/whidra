@@ -27,7 +27,6 @@ export default class Function extends Vue {
 
   @Watch("selection", { immediate: true })
   async watchSyntaxTree(selection: Selection) {
-    window.console.log(selection);
     if (selection.type !== SelectionType.Function) return;
     const { syntaxTree } = await functionXml(
       this.project,
@@ -35,7 +34,6 @@ export default class Function extends Vue {
       undefined,
       selection.name || undefined
     );
-    window.console.log(syntaxTree);
     this.functionSyntaxTree = syntaxTree;
   }
 }
