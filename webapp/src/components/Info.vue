@@ -13,7 +13,7 @@ import {SelectionType} from "@/store/browse";
           <span class="px-2">{{ icon }}</span>
           <span class="font-bold">{{ selection.name }}</span>
         </span>
-        <FontAwesomeIcon icon="external-link-alt" class="mx-2 text-gray-400" />
+        <FontAwesomeIcon icon="external-link-alt" class="mx-2 text-gray-400" @click="goto(selection)" />
       </div>
       <div class="flex-1 info-content p-2 overflow-auto">
         <Const v-if="isConst" />
@@ -103,6 +103,21 @@ export default class Info extends Vue {
     }
   }
 
+  // TODO complete this part
+  goto(selection: Selection) {
+    switch (selection.type) {
+      case SelectionType.Const:
+        break;
+      case SelectionType.Function:
+        break;
+      case SelectionType.Global:
+        break;
+      case SelectionType.Variable:
+        break;
+      case SelectionType.Type:
+        break;
+    }
+  }
 }
 </script>
 <style lang="stylus">
@@ -111,9 +126,4 @@ export default class Info extends Vue {
 
 .info
   background rgba(0, 0, 0, 0.4)
-
-.const-vals
-  text-align left
-  td
-    @apply px-2
 </style>

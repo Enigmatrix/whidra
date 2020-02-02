@@ -76,3 +76,9 @@ export default class Const extends Vue {
   }
 }
 </script>
+<style lang="stylus">
+.const-vals
+  text-align left
+  td
+    @apply px-2
+</style>
