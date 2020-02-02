@@ -1,6 +1,6 @@
 import {SelectionType} from "@/store/browse";
 <template>
-  <table class="const-vals">
+  <table class="const-vals m-2">
     <tbody>
       <tr>
         <th>Hex:</th>

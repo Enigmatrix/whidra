@@ -6,7 +6,7 @@ import {SelectionType} from "@/store/browse";
     @click.self="unselect"
   >
     <div
-      class="absolute bottom-0 left-0 right-0 bg-blue-900 rounded-t-lg shadow flex flex-col info-box "
+      class="absolute bottom-0 left-0 right-0 bg-blue-900 rounded-t-lg shadow flex flex-col overflow-hidden info-box "
     >
       <div class="border-b border-blue-800 p-2 info-header">
         <span :class="classObj">
@@ -19,9 +19,10 @@ import {SelectionType} from "@/store/browse";
           @click="goto(selection)"
         />
       </div>
-      <div class="flex-1 info-content p-2 overflow-auto">
+      <div class="flex-1 info-content overflow-auto h-0">
         <Const v-if="isConst" />
         <Function v-else-if="isFunction" />
+        <Global v-else-if="isGlobal" />
       </div>
     </div>
   </div>
@@ -39,11 +40,12 @@ import { selectionToClassObj } from "@/util";
 import Code from "@/components/Code.vue";
 import Function from "@/components/info/Function.vue";
 import Const from "@/components/info/Const.vue";
+import Global from "@/components/info/Global.vue";
 
 const BrowseStore = namespace("BrowseStore");
 
 @Component({
-  components: { Const, Function, Code, FontAwesomeIcon }
+  components: { Global, Const, Function, Code, FontAwesomeIcon }
 })
 export default class Info extends Vue {
   @BrowseStore.State

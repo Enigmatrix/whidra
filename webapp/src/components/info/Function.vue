@@ -1,5 +1,9 @@
 <template>
-  <Code :syntax-tree="functionSyntaxTree" id="info-code" />
+  <Code
+    :syntax-tree="functionSyntaxTree"
+    id="info-code"
+    class="overflow-hidden"
+  />
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";

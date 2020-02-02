@@ -60,7 +60,7 @@ export default class Listing extends Vue {
     return str.toLowerCase();
   }
 
-  @Watch("addr")
+  @Watch("addr", { immediate: true })
   public async addrChanged(addr: string | null) {
     if (!addr) {
       return;
