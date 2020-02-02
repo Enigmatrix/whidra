@@ -1,7 +1,12 @@
-import { Module, MutationAction, Mutation, VuexModule } from "vuex-module-decorators";
+import {
+  Module,
+  MutationAction,
+  Mutation,
+  VuexModule
+} from "vuex-module-decorators";
 import { Function } from "@/models/response";
 import axios from "@/axios";
-import {functionXml, selectionType} from "@/util";
+import { functionXml, selectionType } from "@/util";
 
 export interface CurrentFunctionDetail {
   function: Function;
@@ -53,7 +58,6 @@ export default class BrowseStore extends VuexModule {
     if (!type) return;
     const stype = selectionType(type);
     if (stype === null) return;
-
 
     this.selection = {
       type: stype,

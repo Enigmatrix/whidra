@@ -13,7 +13,11 @@ import {SelectionType} from "@/store/browse";
           <span class="px-2">{{ icon }}</span>
           <span class="font-bold">{{ selection.name }}</span>
         </span>
-        <FontAwesomeIcon icon="external-link-alt" class="mx-2 text-gray-400" @click="goto(selection)" />
+        <FontAwesomeIcon
+          icon="external-link-alt"
+          class="mx-2 text-gray-400"
+          @click="goto(selection)"
+        />
       </div>
       <div class="flex-1 info-content p-2 overflow-auto">
         <Const v-if="isConst" />

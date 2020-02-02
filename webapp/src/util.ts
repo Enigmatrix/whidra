@@ -1,4 +1,4 @@
-import {SelectionType} from "@/store/browse";
+import { SelectionType } from "@/store/browse";
 import axios from "@/axios";
 
 export function genRandomId(length: number) {
@@ -36,7 +36,6 @@ export function nodeColor(syntax: Element) {
   }
   return color.value;
 }
-
 
 export function selectionType(type: string): SelectionType | null {
   switch (type) {
