@@ -6,7 +6,7 @@ import {SelectionType} from "@/store/browse";
     @click.self="unselect"
   >
     <div
-      class="absolute bottom-0 left-0 right-0 bg-blue-900 rounded-t-lg shadow flex flex-col overflow-hidden info-box "
+      class="absolute bottom-0 left-0 right-0 bg-blue-900 rounded-t-lg shadow overflow-hidden info-box flex flex-col"
     >
       <div class="border-b border-blue-800 p-2 info-header">
         <span :class="classObj">
@@ -19,7 +19,7 @@ import {SelectionType} from "@/store/browse";
           @click="goto(selection)"
         />
       </div>
-      <div class="flex-1 info-content overflow-auto h-0">
+      <div class="info-content min-h-0 overflow-hidden flex-1 h-full">
         <Const v-if="isConst" />
         <Function v-else-if="isFunction" />
         <Global v-else-if="isGlobal" />
@@ -129,6 +129,7 @@ export default class Info extends Vue {
 <style lang="stylus">
 .info-box
   max-height 50%
+  height 100%
 
 .info
   background rgba(0, 0, 0, 0.4)

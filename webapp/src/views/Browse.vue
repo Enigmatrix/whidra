@@ -34,7 +34,7 @@
       </div>
     </div>
 
-    <VueTabs class="flex-1 flex flex-col max-h-full">
+    <VueTabs class="absolute left-0 right-0 bottom-0">
       <VTab title="code">
         <div slot="title" class="flex flex-row justify-center">
           <FontAwesomeIcon icon="code" class="self-center" />
@@ -147,13 +147,18 @@ export default class Browse extends Vue {
 .nav-tabs
   @apply flex
 
+.vue-tabs
+  top 3rem
+
 .tab
   @apply flex-1 text-center
   @apply bg-gray-900 text-gray-300
 
+.tab-container
+  height 100%
+
 .tab-content
-  @apply overflow-auto
-  min-height 0
+  height 100%
 
 .vue-tabs .nav-tabs > li.active > a
 .vue-tabs .nav-tabs > li.active > a:hover

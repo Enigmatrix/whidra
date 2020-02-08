@@ -2,7 +2,7 @@
   <Code
     :syntax-tree="functionSyntaxTree"
     id="info-code"
-    class="overflow-hidden"
+    class="h-full"
   />
 </template>
 <script lang="ts">
