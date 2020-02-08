@@ -117,9 +117,11 @@ export default class Browse extends Vue {
   @Watch("$route", { immediate: true })
   async routeWatcher(to: Route, from: Route) {
     if (to.name !== "browse") return;
+    await this.selectFunctionBase(to.query.fnname as string);
+  }
 
+  public async selectFunctionBase(fnname: string | undefined) {
     let fn: Function | undefined;
-    const { fnname } = to.query;
     if (fnname && fnname.length !== 0) {
       fn = this.normalFunctions.find(x => x.name === fnname);
     }
@@ -136,6 +138,7 @@ export default class Browse extends Vue {
 
   async mounted() {
     await this.load({ project: this.project, binary: this.binary });
+    await this.selectFunctionBase(this.$route.query.fnname as string);
   }
 }
 </script>

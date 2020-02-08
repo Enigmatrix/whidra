@@ -5,6 +5,7 @@ import ghidra.app.plugin.core.analysis.AutoAnalysisManager
 import ghidra.app.util.importer.AutoImporter
 import ghidra.app.util.importer.MessageLog
 import ghidra.program.flatapi.FlatProgramAPI
+import ghidra.program.model.data.DataType
 import ghidra.program.model.lang.Register
 import ghidra.program.model.listing.*
 import ghidra.program.model.scalar.Scalar
@@ -72,8 +73,10 @@ fun Route.binaries() {
     get<routes.Binary.Type> {
         val (server) = call.appSession()
         val program = server.program(it.project, it.name)
+        val api = FlatProgramAPI(program)
 
-        val type = program.dataTypeManager.getDataType(it.type)
+        val types = api.getDataTypes(it.type)
+        val firstType: DataType = types[0]
 
     }
 
