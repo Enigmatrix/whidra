@@ -156,9 +156,11 @@ export default class Browse extends Vue {
 
 .tab-container
   height 100%
+  min-height 0
 
 .tab-content
   height 100%
+  min-height 0
 
 .vue-tabs .nav-tabs > li.active > a
 .vue-tabs .nav-tabs > li.active > a:hover

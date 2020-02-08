@@ -1,5 +1,5 @@
 <template>
-  <table class="m-1 rounded shadow table-auto listing">
+  <table class="m-1 rounded shadow table-fixed listing max-h-full min-h-0 block overflow-scroll">
     <thead>
       <tr>
         <th>addr</th>
@@ -8,7 +8,7 @@
         <!--<th>cmt</th>-->
       </tr>
     </thead>
-    <tbody>
+    <tbody class="">
       <tr v-for="asm in asms" :key="asm.addr">
         <td class="pl-1 address">{{ asm.addr }}</td>
 
