@@ -1,38 +1,19 @@
 <template>
-  <table class="m-1 rounded shadow table-fixed listing max-h-full min-h-0 block overflow-scroll">
+  <table
+    ref="listing"
+    class="m-1 rounded shadow table-fixed listing max-h-full min-h-0 block overflow-scroll"
+    @scroll="scroll"
+  >
     <thead>
-      <tr>
+      <tr class="hidden">
         <th>addr</th>
         <th class="relative">mne</th>
         <th class="w-full">ops</th>
         <!--<th>cmt</th>-->
       </tr>
     </thead>
-    <tbody class="">
-      <tr v-for="asm in asms" :key="asm.addr">
-        <td class="pl-1 address">{{ asm.addr }}</td>
-
-        <td v-if="asm.kind === 'data'" colspan="2">
-          <p class="inline pr-2 data_value">{{ asm.value }}</p>
-          <p class="inline data_type">({{ asm.type }})</p>
-        </td>
-
-        <template v-else>
-          <td class="pr-2 mnemonic ">{{ lower(asm.mnemonic) }}</td>
-          <td>
-            <pre
-              v-for="(oper, index) in asm.operands"
-              :key="index"
-              class="inline-flex operand"
-            >
-              <p v-for="(op, i) in oper" :key="i" :class="{[op.type]: true}">{{op.value}}</p>
-              <p v-if="index+1 < asm.operands.length">,&nbsp;</p>
-            </pre>
-          </td>
-        </template>
-
-        <!--<td>{{asm.comments}}</td>-->
-      </tr>
+    <tbody>
+      <ListingLine v-for="asm in asms" :key="asm.addr" :asm="asm" />
     </tbody>
   </table>
 </template>
@@ -40,11 +21,18 @@
 import { Vue, Watch, Prop, Component } from "vue-property-decorator";
 import axios from "@/axios";
 import { namespace } from "vuex-class";
+import ListingLine from "@/components/ListingLine.vue";
+import { debounce } from "@/util";
 
 const BrowseStore = namespace("BrowseStore");
-
-@Component
+@Component({
+  components: { ListingLine }
+})
 export default class Listing extends Vue {
+  public $refs!: {
+    listing: HTMLTableElement;
+  };
+
   @Prop()
   public addr!: string;
 
@@ -56,8 +44,46 @@ export default class Listing extends Vue {
 
   public asms: any[] = [];
 
-  public lower(str: string) {
-    return str.toLowerCase();
+  public scrollHandler = debounce(this.scroll, 200).bind(this);
+
+  public async scroll() {
+    const listing = this.$refs.listing;
+    const end = listing.scrollHeight - listing.clientHeight;
+    if (listing.scrollTop === 0) {
+      await this.loadPrepend();
+    } else if (listing.scrollTop === end) {
+      await this.loadAppend();
+    }
+    //window.console.log(listing.scrollTop, end);
+  }
+
+  public async loadPrepend() {
+    window.console.info("PREPEND");
+  }
+
+  public async loadAppend() {
+    window.console.info("APPEND");
+    let result = this.asms;
+    const len = result.length;
+    result = result.slice(len / 2, len);
+
+    const newItems = await this.load(this.asms[this.asms.length - 1].addr, len / 2);
+    result = result.concat(newItems);
+
+    const listing = this.$refs.listing;
+    const end = listing.scrollHeight - listing.clientHeight;
+    listing.scroll(0, end - 1);
+
+    this.asms = result;
+    listing.scroll(0, end / 2);
+  }
+
+  public async load(addr: string, len: number): Promise<any[]> {
+    return await axios
+      .get<any[]>(`${this.project}/binary/${this.binary}/listing`, {
+        params: { addr, len }
+      })
+      .then(x => x.data);
   }
 
   @Watch("addr", { immediate: true })
@@ -65,11 +91,7 @@ export default class Listing extends Vue {
     if (!addr) {
       return;
     }
-    this.asms = await axios
-      .get<any[]>(`${this.project}/binary/${this.binary}/listing`, {
-        params: { addr, len: 50 }
-      })
-      .then(x => x.data);
+    this.asms = await this.load(addr, 50);
   }
 }
 </script>
@@ -78,6 +100,12 @@ export default class Listing extends Vue {
 .listing
   font-family 'Iosevka Nerd Font'
   background #1e1e1e
+/*  -ms-overflow-style none
+  overflow-y -moz-scrollbars-none
+
+.listing::-webkit-scrollbar {
+  width 0 !important
+} */
 
 .address
   color #848484
