@@ -111,18 +111,28 @@ export default class Info extends Vue {
 
   // TODO complete this part
   goto(selection: Selection) {
+    let nav: { fnname?: string, addr?: string } | undefined;
     switch (selection.type) {
       case SelectionType.Const:
+        nav = { addr: selection.addr || undefined };
         break;
       case SelectionType.Function:
+        nav = { fnname: selection.name || undefined };
         break;
       case SelectionType.Global:
+        nav = { addr: selection.addr || undefined };
         break;
       case SelectionType.Variable:
         break;
       case SelectionType.Type:
         break;
     }
+    if (!nav) return;
+    this.$router.push({
+      name: "browse",
+      params: { project: this.project, binary: this.binary },
+      query: nav
+    });
   }
 }
 </script>
