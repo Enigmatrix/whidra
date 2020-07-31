@@ -8,6 +8,4 @@ Why not?
 Magic.
 
 ## Development
-```sh
-docker-compose -f docker-compose.dev.yml up --build
-```
+Refer to the [Developer Documentation](docs/DEVELOP.md)
