@@ -32,7 +32,6 @@ dependencies {
     implementation("io.micronaut:micronaut-validation")
     implementation("io.micronaut.kotlin:micronaut-kotlin-runtime")
     implementation("io.micronaut:micronaut-runtime")
-    implementation("io.micronaut:micronaut-management")
     implementation("javax.annotation:javax.annotation-api")
     implementation("io.micronaut:micronaut-http-server-netty")
     implementation("io.micronaut:micronaut-http-client")
@@ -41,6 +40,8 @@ dependencies {
     implementation("io.micronaut.kotlin:micronaut-kotlin-extension-functions")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    implementation(files("../ghidra.jar"))
 
     // kaptTest(enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion"))
     // kaptTest("io.micronaut:micronaut-inject-java")

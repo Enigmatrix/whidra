@@ -1,4 +1,8 @@
 micronaut:
+  io:
+    watch:
+      paths: src/main
+      restart: true
   router:
     static-resources:
       swagger:
