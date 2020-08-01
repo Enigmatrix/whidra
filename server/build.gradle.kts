@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val micronautVersion = "2.0.1"
 val kotlinVersion = "1.3.72"
+val kotestVersion = "4.1.3"
 
 plugins {
     kotlin("jvm") version "1.3.72"
@@ -43,12 +44,14 @@ dependencies {
 
     implementation(files("../ghidra.jar"))
 
-    // kaptTest(enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion"))
-    // kaptTest("io.micronaut:micronaut-inject-java")
-    // testImplementation(enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion"))
-    // testImplementation("io.micronaut.test:micronaut-test-kotlintest")
-    // testImplementation("io.mockk:mockk:1.9.3")
-    // testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
+    kaptTest(enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion"))
+    kaptTest("io.micronaut:micronaut-inject-java")
+    testImplementation(enforcedPlatform("io.micronaut:micronaut-bom:$micronautVersion"))
+    testImplementation("io.micronaut.test:micronaut-test-kotlintest")
+    testImplementation("io.mockk:mockk:1.9.3")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion") // for kotest framework
+    testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion") // for kotest core jvm assertions
+    testImplementation("io.kotest:kotest-property-jvm:$kotestVersion") // for kotest property test
 }
 
 allOpen {
@@ -84,6 +87,10 @@ tasks {
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "11"
         kotlinOptions.javaParameters = true
+    }
+
+    test {
+        useJUnitPlatform()
     }
 }
 

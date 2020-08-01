@@ -3,7 +3,7 @@ package org.whidra
 import io.micronaut.runtime.Micronaut.*
 import io.swagger.v3.oas.annotations.*
 import io.swagger.v3.oas.annotations.info.*
-
+import org.whidra.bridge.*
 
 @OpenAPIDefinition(
     info = Info(
@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.info.*
 object Api
 
 fun main(args: Array<String>) {
+    Ghidra.init()
     build()
         .args(*args)
         .packages("org.whidra")
