@@ -1,9 +1,11 @@
 package org.whidra.controllers
 
 import io.micronaut.http.annotation.*
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.whidra.model.*
 
 @Controller("/api/repository")
+@Tag(name = "Repository")
 class RepositoryController {
 
     /**
