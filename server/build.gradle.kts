@@ -25,19 +25,20 @@ dependencies {
     kapt("io.micronaut:micronaut-inject-java")
     kapt("io.micronaut:micronaut-validation")
     kapt("io.micronaut.configuration:micronaut-openapi")
-    // kapt("io.micronaut.security:micronaut-security-annotations")
+    kapt("io.micronaut.security:micronaut-security-annotations")
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
     implementation(platform("io.micronaut:micronaut-bom:$micronautVersion"))
     implementation("io.micronaut:micronaut-inject")
     implementation("io.micronaut:micronaut-validation")
-    implementation("io.micronaut.kotlin:micronaut-kotlin-runtime")
     implementation("io.micronaut:micronaut-runtime")
-    implementation("javax.annotation:javax.annotation-api")
+    implementation("io.micronaut:micronaut-session")
     implementation("io.micronaut:micronaut-http-server-netty")
     implementation("io.micronaut:micronaut-http-client")
     implementation("io.swagger.core.v3:swagger-annotations")
-    // implementation("io.micronaut.security:micronaut-security-session")
+    implementation("javax.annotation:javax.annotation-api")
+    implementation("io.micronaut.security:micronaut-security-session")
+    implementation("io.micronaut.kotlin:micronaut-kotlin-runtime")
     implementation("io.micronaut.kotlin:micronaut-kotlin-extension-functions")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -55,7 +56,7 @@ dependencies {
 }
 
 allOpen {
-    this.annotation("io.micronaut.aop.Around")
+    annotation("io.micronaut.aop.Around")
 }
 
 kapt {

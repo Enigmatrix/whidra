@@ -8,7 +8,7 @@ import ghidra.util.task.TaskMonitor
 import java.io.*
 import java.net.*
 
-class Repository(private val client: Client, private val name: String): Closeable {
+class Repository(private val client: Client, val name: String): Closeable {
 
     private val ghidraConnection = GhidraURLConnection(URL("ghidra", Ghidra.host, "/$name"),
             WhidraProtocolHandler(client.repositoryServer)).apply { isReadOnly = false }
@@ -27,7 +27,7 @@ class Repository(private val client: Client, private val name: String): Closeabl
         return projectData.rootFolder.files.map { it.name }
     }
 
-    fun binary(name: String, monitor: TaskMonitor): Binary {
+    fun binary(name: String, monitor: TaskMonitor = TaskMonitor.DUMMY): Binary {
         val file = projectData.rootFolder.getFile(name)
         return Binary(file.getDomainObject(this, true, true, monitor) as Program)
     }

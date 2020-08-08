@@ -1,8 +1,47 @@
 micronaut:
+
+  security:
+    authentication: session
+    intercept-url-map:
+      -
+        pattern: /redoc/*
+        http-method: GET
+        access:
+          - isAnonymous()
+      -
+        pattern: /swagger/*
+        http-method: GET
+        access:
+          - isAnonymous()
+      -
+        pattern: /swagger-ui/*
+        http-method: GET
+        access:
+          - isAnonymous()
+      -
+        pattern: /rapidoc/*
+        http-method: GET
+        access:
+          - isAnonymous()
+    endpoints:
+      login:
+        path: /auth/login
+      logout:
+        path: /auth/logout
+
+  session:
+    http:
+      cookie-max-age: 5m
+      header-names:
+        - X-Session
+        - X-Session-Token
+        - Session-Info
+
   io:
     watch:
       paths: src/main
       restart: true
+
   router:
     static-resources:
       swagger:

@@ -1,9 +1,15 @@
 package org.whidra.binders
 
 import io.micronaut.core.annotation.Introspected
-import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.QueryValue
+import io.micronaut.session.Session
+import io.micronaut.session.annotation.SessionValue
 
 @Introspected
-class BinaryParam(val binary: String, val repository: String) {
+class BinaryParam {
+    @QueryValue
+    lateinit var binary: String
+
+    @QueryValue
+    lateinit var repository: String
 }
