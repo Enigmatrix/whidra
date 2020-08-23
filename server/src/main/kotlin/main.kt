@@ -19,7 +19,7 @@ fun Application.main() {
     install(CallLogging)
     routing {
         get("/") {
-            call.respond("lmao 2  23yes")
+            call.respond("Hello World from JDK 11")
         }
     }
 }

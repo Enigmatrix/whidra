@@ -16,14 +16,14 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8")) // stdlib-jdk8
+    implementation(kotlin("stdlib"))
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:1.2.3")
 }
 
 tasks {
     withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8" // 1.8
+        kotlinOptions.jvmTarget = "11"
     }
 }
 
