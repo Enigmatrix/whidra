@@ -1,7 +1,17 @@
 micronaut:
 
   security:
-    authentication: session
+    authentication: cookie
+    token:
+      jwt:
+        cookie:
+          cookie-name: AUTHENTICATION
+        signatures:
+          secret:
+            generator:
+              secret: '"${JWT_GENERATOR_SIGNATURE_SECRET:pleaseChangeThisSecretForANewOne}"'
+              jws-algorithm: HS256
+
     intercept-url-map:
       -
         pattern: /redoc/*
