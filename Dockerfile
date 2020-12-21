@@ -7,8 +7,8 @@ RUN apt-get update && apt-get install -y unzip wget gettext-base patch sudo ed l
 
 # --- Base Ghidra Image ---
 FROM jvm as ghidra
-ARG GHIDRA_VERSION=9.0_PUBLIC_20190228
-ARG GHIDRA_SHA256=3b65d29024b9decdbb1148b12fe87bcb7f3a6a56ff38475f5dc9dd1cfc7fd6b2
+ARG GHIDRA_VERSION=9.2_PUBLIC_20201113
+ARG GHIDRA_SHA256=ffebd3d87bc7c6d9ae1766dd3293d1fdab3232a99b170f8ea8b57497a1704ff6
 
 RUN useradd -m ghidra && \
     mkdir -p /repos && \

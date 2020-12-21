@@ -5,4 +5,4 @@ if [ ! -e "${GHIDRA_REPOSITORIES_PATH}/users" ]; then
   echo "-add ghidra" >> "${GHIDRA_REPOSITORIES_PATH}/~admin/adm.cmd"
 fi
 
-server/ghidraSvr console -u
+server/ghidraSvr console
